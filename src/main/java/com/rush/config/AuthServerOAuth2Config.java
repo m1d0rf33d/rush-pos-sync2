@@ -27,6 +27,10 @@ import javax.sql.DataSource;
 @Configuration
 @EnableAuthorizationServer
 public class AuthServerOAuth2Config extends AuthorizationServerConfigurerAdapter {
+
+    @Autowired
+    private DataSource dataSource;
+
     @Autowired
     @Qualifier("authenticationManagerBean")
     private AuthenticationManager authenticationManager;
@@ -46,7 +50,7 @@ public class AuthServerOAuth2Config extends AuthorizationServerConfigurerAdapter
     @Override
     public void configure(ClientDetailsServiceConfigurer clients)
             throws Exception {
-        clients.jdbc(dataSource())
+        clients.jdbc(dataSource)
                 .withClient("sampleClientId")
                 .authorizedGrantTypes("implicit")
                 .scopes("read")
@@ -69,10 +73,10 @@ public class AuthServerOAuth2Config extends AuthorizationServerConfigurerAdapter
 
     @Bean
     public TokenStore tokenStore() {
-        return new JdbcTokenStore(dataSource());
+        return new JdbcTokenStore(dataSource);
     }
     @Bean
-    public DataSourceInitializer dataSourceInitializer(DataSource dataSource) {
+    public DataSourceInitializer dataSourceInitializer() {
         DataSourceInitializer initializer = new DataSourceInitializer();
         initializer.setDataSource(dataSource);
         initializer.setDatabasePopulator(databasePopulator());
@@ -83,15 +87,5 @@ public class AuthServerOAuth2Config extends AuthorizationServerConfigurerAdapter
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
         populator.addScript(schemaScript);
         return populator;
-    }
-
-    @Bean
-    public DataSource dataSource() {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://localhost:3306/rush_pos_sync");
-        dataSource.setUsername("root");
-        dataSource.setPassword("root");
-        return dataSource;
     }
 }

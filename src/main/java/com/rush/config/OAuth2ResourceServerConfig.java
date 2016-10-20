@@ -1,5 +1,6 @@
 package com.rush.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,6 +20,8 @@ import javax.sql.DataSource;
 @EnableResourceServer
 public class OAuth2ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
+    @Autowired
+    private DataSource dataSource;
 
     @Override
     public void configure(final HttpSecurity http) throws Exception {
@@ -28,17 +31,8 @@ public class OAuth2ResourceServerConfig extends ResourceServerConfigurerAdapter 
                 .authorizeRequests()
                 .antMatchers("/api/**").access("#oauth2.hasScope('trust')");
     }
-    // JDBC token store configuration
-      @Bean
-      public DataSource dataSource() {
-          final DriverManagerDataSource dataSource = new DriverManagerDataSource();
-          dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-          dataSource.setUrl("jdbc:mysql://localhost:3306/rush_pos_sync");
-          dataSource.setUsername("root");
-          dataSource.setPassword("root");
-          return dataSource;
-      }
+
 
       @Bean public TokenStore tokenStore() {
-          return new JdbcTokenStore(dataSource()); }
+          return new JdbcTokenStore(dataSource); }
 }
