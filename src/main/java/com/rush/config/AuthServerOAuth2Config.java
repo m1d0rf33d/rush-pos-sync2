@@ -58,9 +58,10 @@ public class AuthServerOAuth2Config extends AuthorizationServerConfigurerAdapter
                 .and()
                 .withClient("clientIdPassword")
                 .secret("secret")
+                .accessTokenValiditySeconds(0)
                 .authorizedGrantTypes(
                         "password","authorization_code", "refresh_token")
-                .scopes("read");
+                .scopes("trust");
     }
 
     @Override

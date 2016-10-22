@@ -1,9 +1,10 @@
 package com.rush.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
-/**
- * Created by aomine on 10/20/16.
+/** @Author fsociety
+ *
  */
 @Entity
 @Table(name = "role")
@@ -13,8 +14,6 @@ public class Role {
     @Id
     private long id;
 
-    private String name;
-
     public long getId() {
         return id;
     }
@@ -22,6 +21,8 @@ public class Role {
     public void setId(long id) {
         this.id = id;
     }
+
+    private String name;
 
     public String getName() {
         return name;

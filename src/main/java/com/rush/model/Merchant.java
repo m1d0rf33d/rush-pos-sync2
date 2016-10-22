@@ -1,43 +1,43 @@
 package com.rush.model;
 
+import com.rush.model.enums.MerchantStatus;
+
+import javax.persistence.*;
+
 /**
  * Created by aomine on 10/18/16.
  */
-public class MerchantDTO {
+@Entity
+@Table(name = "merchant")
+public class Merchant {
 
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id
     private Long id;
 
+    @Column
     private String name;
+    @Column
     private String uniqueKey;
+    @Column
     private String merchantApiKey;
+    @Column
     private String merchantApiSecret;
-
+    @Column
     private String customerApiKey;
+    @Column
     private String customerApiSecret;
-    private String status;
 
-    public String getStatus() {
+    @Enumerated(EnumType.STRING)
+    @Column
+    private MerchantStatus status;
+
+    public MerchantStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(MerchantStatus status) {
         this.status = status;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getUniqueKey() {
@@ -78,5 +78,21 @@ public class MerchantDTO {
 
     public void setCustomerApiSecret(String customerApiSecret) {
         this.customerApiSecret = customerApiSecret;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
