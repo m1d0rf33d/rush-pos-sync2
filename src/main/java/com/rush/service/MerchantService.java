@@ -3,10 +3,7 @@ package com.rush.service;
 import com.rush.model.*;
 import com.rush.model.enums.MerchantStatus;
 import com.rush.model.enums.Screen;
-import com.rush.repository.MerchantRepository;
-import com.rush.repository.MerchantScreenRepository;
-import com.rush.repository.RoleRepository;
-import com.rush.repository.UserRepository;
+import com.rush.repository.*;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.simple.JSONObject;
@@ -37,6 +34,8 @@ public class MerchantService {
     private RoleRepository roleRepository;
     @Autowired
     private MerchantScreenRepository merchantScreenRepository;
+    @Autowired
+    private UserRoleRepository userRoleRepository;
 
     private String baseUrl;
     private String merchantEmployeesEndpoint;
@@ -142,8 +141,13 @@ public class MerchantService {
             String jsonResponse = apiService.call(url, params, "POST", null);
             JSONParser parser = new JSONParser();
             JSONObject tokenJSON = (JSONObject) parser.parse(jsonResponse);
-            String token = (String) tokenJSON.get("token");
 
+            if (tokenJSON.get("message") != null) {
+                apiResponse.setResponseCode("500");
+                return apiResponse;
+            }
+
+            String token = (String) tokenJSON.get("token");
             //GET Employees
             url = baseUrl + merchantEmployeesEndpoint;
             params = new ArrayList<>();
@@ -154,10 +158,12 @@ public class MerchantService {
                 String uuid = (String) account.get("uuid");
                 User user = userRepository.findOneByUuid(uuid);
                 if (user != null) {
-                    List<Role> roles = user.getRoles();
-                    if (!roles.isEmpty()) {
-                        account.put("role", roles.get(0).getName());
-                    }
+                    List<UserRole> userRoles = userRoleRepository.findByUser(user);
+                    userRoles.stream()
+                            .forEach(ur-> {
+                                account.put("roleId", ur.getRole().getId());
+                                account.put("role", ur.getRole().getName());
+                            });
                 }
             }
             apiResponse.setData(accounts);
@@ -174,15 +180,21 @@ public class MerchantService {
         User user = userRepository.findOneByUuid(userDTO.getUuid());
         if (user == null) {
             user = new User();
+        } else {
+            //clear user roles
+            List<UserRole> userRoles = userRoleRepository.findByUser(user);
+            for (UserRole ur : userRoles) {
+                userRoleRepository.delete(ur);
+            }
         }
         user.setName(userDTO.getName());
         user.setUuid(userDTO.getUuid());
-
-        Role role = roleRepository.findOneByName(userDTO.getRole());
-        List<Role> roles = new ArrayList<>();
-        roles.add(role);
-        user.setRoles(roles);
-        userRepository.save(user);
+        user = userRepository.save(user);
+        Role role = roleRepository.findOne(userDTO.getRoleId());
+        UserRole userRole = new UserRole();
+        userRole.setRole(role);
+        userRole.setUser(user);
+        userRoleRepository.save(userRole);
 
         ApiResponse apiResponse = new ApiResponse();
         apiResponse.setResponseCode("200");
@@ -193,7 +205,7 @@ public class MerchantService {
 
         List<RoleDTO> roleDTOs = new ArrayList<>();
         Merchant merchant = merchantRepository.findOne(merchantId);
-        Iterable<Role> roles = roleRepository.findAll();
+        List<Role> roles = roleRepository.findByMerchant(merchant);
         roles.forEach(role -> {
             RoleDTO roleDTO = new RoleDTO();
             List<ScreenDTO> screens = new ArrayList<>();
@@ -247,6 +259,62 @@ public class MerchantService {
             }
         }
 
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setResponseCode("200");
+        return apiResponse;
+    }
+
+    public  ApiResponse getRoles(long merchantId) {
+        Merchant merchant = merchantRepository.findOne(merchantId);
+        List<Role> roles = roleRepository.findByMerchant(merchant);
+
+        List<RoleDTO> roleDTOs = new ArrayList<>();
+        roles.stream()
+                .forEach(role -> {
+                    RoleDTO roleDTO = new RoleDTO();
+                    roleDTO.setName(role.getName());
+                    roleDTO.setRoleId(role.getId());
+                    roleDTO.setMerchantId(role.getMerchant().getId());
+                    roleDTOs.add(roleDTO);
+                });
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setResponseCode("200");
+        apiResponse.setData(roleDTOs);
+        return apiResponse;
+    }
+
+    public ApiResponse updateRole(RoleDTO roleDTO) {
+        Role role;
+        if (roleDTO.getRoleId() == null) {
+            role = new Role();
+        } else {
+            role = roleRepository.findOne(roleDTO.getRoleId());
+        }
+        Merchant merchant = merchantRepository.findOne(roleDTO.getMerchantId());
+        role.setMerchant(merchant);
+        role.setName(roleDTO.getName());
+        roleRepository.save(role);
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setResponseCode("200");
+        return apiResponse;
+    }
+
+    public ApiResponse deleteRole(RoleDTO roleDTO) {
+
+        Merchant merchant = merchantRepository.findOne(roleDTO.getMerchantId());
+        Role role = roleRepository.findOne(roleDTO.getRoleId());
+        List<UserRole> userRoles = userRoleRepository.findByRole(role);
+        userRoles.stream()
+                .forEach(ur-> {
+                    userRoleRepository.delete(ur);
+                });
+        List<MerchantScreen> merchantScreens = merchantScreenRepository.findByRoleAndMerchant(role, merchant);
+        merchantScreens.stream()
+                .forEach(ms -> {
+                    merchantScreenRepository.delete(ms);
+                });
+
+        roleRepository.delete(role);
         ApiResponse apiResponse = new ApiResponse();
         apiResponse.setResponseCode("200");
         return apiResponse;

@@ -1,9 +1,6 @@
 package com.rush.controller;
 
-import com.rush.model.ApiResponse;
-import com.rush.model.MerchantDTO;
-import com.rush.model.RoleDTO;
-import com.rush.model.UserDTO;
+import com.rush.model.*;
 import com.rush.service.MerchantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -52,5 +49,20 @@ public class MerchantResource {
     @RequestMapping(value = "/access/update", method = RequestMethod.POST)
     public ApiResponse accessUpdate(@RequestBody RoleDTO roleDTO) {
         return merchantService.updateRoleAccess(roleDTO);
+    }
+
+    @RequestMapping(value = "/{merchantId}/roles", method = RequestMethod.GET)
+    public ApiResponse getRoles(@PathVariable Long merchantId) {
+        return merchantService.getRoles(merchantId);
+    }
+
+    @RequestMapping(value = "/roles/update", method = RequestMethod.POST)
+    public ApiResponse updateRole(@RequestBody RoleDTO roleDTO) {
+        return merchantService.updateRole(roleDTO);
+    }
+
+    @RequestMapping(value = "/roles/delete", method = RequestMethod.POST)
+    public ApiResponse deleteRole(@RequestBody RoleDTO roleDTO) {
+        return merchantService.deleteRole(roleDTO);
     }
 }

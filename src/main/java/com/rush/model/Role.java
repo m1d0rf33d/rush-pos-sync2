@@ -14,6 +14,18 @@ public class Role {
     @Id
     private long id;
 
+    @ManyToOne
+    @JoinColumn(name = "merchant_id")
+    private Merchant merchant;
+
+    public Merchant getMerchant() {
+        return merchant;
+    }
+
+    public void setMerchant(Merchant merchant) {
+        this.merchant = merchant;
+    }
+
     public long getId() {
         return id;
     }

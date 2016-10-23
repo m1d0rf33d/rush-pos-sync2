@@ -17,15 +17,15 @@ public class Merchant {
 
     @Column
     private String name;
-    @Column
+    @Column(name = "unique_key")
     private String uniqueKey;
-    @Column
+    @Column(name = "merchant_api_key")
     private String merchantApiKey;
-    @Column
+    @Column(name = "merchant_api_secret")
     private String merchantApiSecret;
-    @Column
+    @Column(name = "customer_api_key")
     private String customerApiKey;
-    @Column
+    @Column(name = "customer_api_secret")
     private String customerApiSecret;
 
     @Enumerated(EnumType.STRING)
