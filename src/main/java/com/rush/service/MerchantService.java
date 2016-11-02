@@ -36,6 +36,8 @@ public class MerchantService {
     private MerchantScreenRepository merchantScreenRepository;
     @Autowired
     private UserRoleRepository userRoleRepository;
+    @Autowired
+    private BranchRepository branchRepository;
 
     private String baseUrl;
     private String merchantEmployeesEndpoint;
@@ -316,6 +318,107 @@ public class MerchantService {
 
         roleRepository.delete(role);
         ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setResponseCode("200");
+        return apiResponse;
+    }
+
+    public ApiResponse getAccountAccess(String uuid, String branchUuid){
+        List<String> access = new ArrayList<>();
+        User user = userRepository.findOneByUuid(uuid);
+        if (user != null) {
+            List<UserRole> userRoles = userRoleRepository.findByUser(user);
+            userRoles.stream()
+                    .forEach(ur-> {
+                        List<MerchantScreen> merchantScreens = merchantScreenRepository.findByRole(ur.getRole());
+                        merchantScreens.stream()
+                                .forEach(ms -> {
+                                    access.add(ms.getScreen().toString());
+                                });
+                    });
+        }
+        boolean withVk = false;
+        Branch branch = branchRepository.findOneByUuid(branchUuid);
+        if (branch != null) {
+            withVk = branch.isWithVk();
+        }
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("access", access);
+        jsonObject.put("withVk", withVk);
+
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setResponseCode("200");
+        apiResponse.setData(jsonObject);
+        return apiResponse;
+    }
+
+
+    public ApiResponse getBranches(Long merchantId) {
+
+        ApiResponse apiResponse = new ApiResponse();
+        try {
+            Merchant merchant = merchantRepository.findOne(merchantId);
+
+            String url = baseUrl + authorizationEndpoint;
+            List<NameValuePair> params = new ArrayList<>();
+            params.add(new BasicNameValuePair("app_key", merchant.getMerchantApiKey()));
+            params.add(new BasicNameValuePair("app_secret", merchant.getMerchantApiSecret()));
+
+            //GET Token
+            String jsonResponse = apiService.call(url, params, "POST", null);
+            JSONParser parser = new JSONParser();
+            JSONObject tokenJSON = (JSONObject) parser.parse(jsonResponse);
+
+            if (tokenJSON.get("message") != null) {
+                apiResponse.setResponseCode("500");
+                return apiResponse;
+            }
+
+            String token = (String) tokenJSON.get("token");
+            //GET Employees
+            List<BranchDTO> branchDTOs = new ArrayList<>();
+            url = baseUrl + branchesEndpoint;
+            params = new ArrayList<>();
+            jsonResponse = apiService.call(url, params, "GET", token);
+            JSONObject jsonObj = (JSONObject) parser.parse(jsonResponse);
+            List<JSONObject> branches = (ArrayList) jsonObj.get("data");
+            for (JSONObject branch : branches) {
+                BranchDTO branchDTO = new BranchDTO();
+                branchDTO.setBranchName((String) branch.get("name"));
+                String uuid = (String) branch.get("uuid");
+                branchDTO.setUuid(uuid);
+                Branch b = branchRepository.findOneByUuid(uuid);
+                if (b != null) {
+                    branchDTO.setBranchId(b.getId());
+                    branchDTO.setWithVk(b.isWithVk());
+                }
+                branchDTOs.add(branchDTO);
+            }
+            apiResponse.setData(branchDTOs);
+            apiResponse.setResponseCode("200");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return apiResponse;
+    }
+
+    public ApiResponse updateBranch(BranchDTO branchDTO) {
+
+        ApiResponse apiResponse = new ApiResponse();
+        Branch branch;
+        if (branchDTO.getBranchId() != null) {
+            branch = branchRepository.findOne(branchDTO.getBranchId());
+            branch.setWithVk(branchDTO.getWithVk());
+            branchRepository.save(branch);
+        } else {
+            branch = new Branch();
+            branch.setUuid(branchDTO.getUuid());
+            branch.setWithVk(branchDTO.getWithVk());
+            branchRepository.save(branch);
+        }
+
         apiResponse.setResponseCode("200");
         return apiResponse;
     }

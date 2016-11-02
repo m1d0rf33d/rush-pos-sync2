@@ -13,4 +13,5 @@ import java.util.List;
 public interface MerchantScreenRepository extends CrudRepository<MerchantScreen, Long> {
 
     List<MerchantScreen> findByRoleAndMerchant(Role role, Merchant merchant);
+    List<MerchantScreen> findByRole(Role role);
 }

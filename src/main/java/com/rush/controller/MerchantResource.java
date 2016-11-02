@@ -65,4 +65,20 @@ public class MerchantResource {
     public ApiResponse deleteRole(@RequestBody RoleDTO roleDTO) {
         return merchantService.deleteRole(roleDTO);
     }
+
+    @RequestMapping(value = "/access/{uuid}/{branchUuid}", method = RequestMethod.GET)
+    public ApiResponse  getAccountAccess(@PathVariable String uuid, @PathVariable String branchUuid) {
+        return merchantService.getAccountAccess(uuid, branchUuid);
+    }
+
+    @RequestMapping(value = "/{merchantId}/branch", method = RequestMethod.GET)
+    public ApiResponse getBranches(@PathVariable Long merchantId) {
+        return merchantService.getBranches(merchantId);
+    }
+
+
+    @RequestMapping(value = "/branch", method = RequestMethod.POST)
+    public ApiResponse updateBranch(@RequestBody BranchDTO branchDTO) {
+        return merchantService.updateBranch(branchDTO);
+    }
 }
