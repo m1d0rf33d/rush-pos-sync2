@@ -27,13 +27,13 @@ public class DatasourceConfig {
     private static final String PROPERTY_NAME_HIBERNATE_SHOW_SQL        = "hibernate.show_sql";
     private static final String PROPERTY_NAME_HIBERNATE_HBM2DDL_AUTO    = "hibernate.hbm2ddl.auto";
 
-
-
     @Bean
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
         dataSource.setUrl("jdbc:mysql://localhost:3306/rush_pos_sync");
+    /*    dataSource.setUsername("rush_pos_user");
+        dataSource.setPassword("12345678");*/
         dataSource.setUsername("root");
         dataSource.setPassword("root");
         return dataSource;
