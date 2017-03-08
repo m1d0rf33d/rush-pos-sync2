@@ -32,10 +32,10 @@ public class DatasourceConfig {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
         dataSource.setUrl("jdbc:mysql://localhost:3306/rush_pos_sync");
-    /*    dataSource.setUsername("rush_pos_user");
-        dataSource.setPassword("12345678");*/
-        dataSource.setUsername("root");
+       dataSource.setUsername("root");
         dataSource.setPassword("root");
+ /*       dataSource.setUsername("rush_pos_user");
+        dataSource.setPassword("12345678");*/
         return dataSource;
     }
 

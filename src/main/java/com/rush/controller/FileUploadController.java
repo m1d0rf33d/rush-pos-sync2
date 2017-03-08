@@ -1,6 +1,8 @@
 package com.rush.controller;
 
 import com.rush.model.ApiResponse;
+import com.rush.service.FileUploadService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,11 +20,14 @@ import java.util.Date;
 @Controller
 public class FileUploadController {
 
+    @Autowired
+    private FileUploadService fileUploadService;
+
     @RequestMapping(value = "/download/{merchantKey}", method = RequestMethod.GET)
     public void getMerchantUpdates(@PathVariable("merchantKey") String merchantKey,
                                    HttpServletResponse response) {
 
-        File file = new File(System.getProperty("catalina.home") + "/" + merchantKey + "/rush-update.jar");
+        File file = new File(fileUploadService.getUpdatePath(merchantKey));
 
         if (file.exists()) {
             try {
@@ -56,19 +61,11 @@ public class FileUploadController {
         }
     }
 
-    @RequestMapping(value = "/{merchantKey}/{dateModified}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{merchantKey}/{version}", method = RequestMethod.GET)
     @ResponseBody
     public ApiResponse fetchUpdates(@PathVariable("merchantKey") String merchantKey,
-                                    @PathVariable("dateModified") Long dateModified) {
-        ApiResponse apiResponse = new ApiResponse();
-        File file = new File(System.getProperty("catalina.home") + "/" + merchantKey + "/rush-update.jar");
-        if (file.exists()) {
-            if (file.lastModified() > dateModified) {
-                apiResponse.setData(file.length());
-            }
-        }
-        apiResponse.setResponseCode("200");
-        return apiResponse;
+                                    @PathVariable("version") String version) {
+        return fileUploadService.checkForUpdates(merchantKey, version);
     }
 
 }

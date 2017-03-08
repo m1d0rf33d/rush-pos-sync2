@@ -1,6 +1,7 @@
 package com.rush.model;
 
 import com.rush.model.enums.MerchantStatus;
+import com.rush.model.enums.MerchantType;
 
 import javax.persistence.*;
 
@@ -27,10 +28,21 @@ public class Merchant {
     private String customerApiKey;
     @Column(name = "customer_api_secret")
     private String customerApiSecret;
+    @Column
+    @Enumerated(EnumType.STRING)
+    private MerchantType merchantType;
 
     @Enumerated(EnumType.STRING)
     @Column
     private MerchantStatus status;
+
+    public MerchantType getMerchantType() {
+        return merchantType;
+    }
+
+    public void setMerchantType(MerchantType merchantType) {
+        this.merchantType = merchantType;
+    }
 
     public MerchantStatus getStatus() {
         return status;
