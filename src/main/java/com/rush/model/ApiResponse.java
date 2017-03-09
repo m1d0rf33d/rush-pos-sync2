@@ -8,6 +8,15 @@ public class ApiResponse<T> {
     private String message;
     private T data;
     private String responseCode;
+    private String errorCode;
+
+    public String getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(String errorCode) {
+        this.errorCode = errorCode;
+    }
 
     public String getMessage() {
         return message;

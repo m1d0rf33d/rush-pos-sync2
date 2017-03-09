@@ -1,9 +1,12 @@
 package com.rush.controller;
 
 import com.rush.model.*;
+import com.rush.model.dto.BranchDTO;
+import com.rush.model.dto.MerchantDTO;
+import com.rush.model.dto.RoleDTO;
+import com.rush.model.dto.UserDTO;
 import com.rush.service.MerchantService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 /**

@@ -1,4 +1,4 @@
-package com.rush.model;
+package com.rush.model.dto;
 
 /**
  * Created by aomine on 10/18/16.
@@ -15,6 +15,54 @@ public class MerchantDTO {
     private String customerApiKey;
     private String customerApiSecret;
     private String status;
+
+    private String token;
+    private Boolean withVk;
+
+    private String backgroundUrl;
+    private String stampsUrl;
+    private String grayStampsUrl;
+
+
+    public String getBackgroundUrl() {
+        return backgroundUrl;
+    }
+
+    public void setBackgroundUrl(String backgroundUrl) {
+        this.backgroundUrl = backgroundUrl;
+    }
+
+    public String getStampsUrl() {
+        return stampsUrl;
+    }
+
+    public void setStampsUrl(String stampsUrl) {
+        this.stampsUrl = stampsUrl;
+    }
+
+    public String getGrayStampsUrl() {
+        return grayStampsUrl;
+    }
+
+    public void setGrayStampsUrl(String grayStampsUrl) {
+        this.grayStampsUrl = grayStampsUrl;
+    }
+
+    public Boolean getWithVk() {
+        return withVk;
+    }
+
+    public void setWithVk(Boolean withVk) {
+        this.withVk = withVk;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 
     public String getStatus() {
         return status;

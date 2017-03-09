@@ -7,6 +7,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -21,30 +24,34 @@ import java.util.List;
 @Service
 public class APIService {
 
-    public String call(String url, List<NameValuePair> params, String method, String token) throws IOException {
+    public JSONObject call(String url, List<NameValuePair> params, String method, String token) throws IOException {
 
-        HttpResponse response = null;
-        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-        //POST request
-        if (method.equalsIgnoreCase("post")) {
-            HttpPost httpPost = new HttpPost(url);
-            httpPost.setEntity(new UrlEncodedFormEntity(params));
-            if (token != null) {
-                httpPost.addHeader("Authorization", "Bearer "+ token);
-            }
-            response = httpClient.execute(httpPost);
-        }
-        //GET request
-        if (method.equalsIgnoreCase("get")) {
-            HttpGet request = new HttpGet(url);
-            request.addHeader("content-type", "application/json");
-            if (token != null) {
-                request.addHeader("Authorization", "Bearer "+ token);
-            }
-            response = httpClient.execute(request);
-        }
+       try {
+            HttpResponse response = null;
+            CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+            //POST request
+            if (method.equalsIgnoreCase("post")) {
+                HttpPost httpPost = new HttpPost(url);
+                if (params != null) {
+                    httpPost.setEntity(new UrlEncodedFormEntity(params));
+                }
 
-        // use httpClient (no need to close it explicitly)
+                if (token != null) {
+                    httpPost.addHeader("Authorization", "Bearer "+ token);
+                }
+                response = httpClient.execute(httpPost);
+            }
+            //GET request
+            if (method.equalsIgnoreCase("get")) {
+                HttpGet request = new HttpGet(url);
+                request.addHeader("content-type", "application/json");
+                if (token != null) {
+                    request.addHeader("Authorization", "Bearer "+ token);
+                }
+                response = httpClient.execute(request);
+            }
+
+            // use httpClient (no need to close it explicitly)
             BufferedReader rd = new BufferedReader(
                     new InputStreamReader(response.getEntity().getContent()));
 
@@ -53,6 +60,15 @@ public class APIService {
             while ((line = rd.readLine()) != null) {
                 result.append(line);
             }
-            return result.toString();
+            httpClient.close();
+
+            JSONParser parser = new JSONParser();
+            JSONObject jsonObject = (JSONObject) parser.parse(result.toString());
+            return jsonObject;
+       } catch (ParseException e) {
+           e.printStackTrace();
+       }
+
+        return null;
     }
 }

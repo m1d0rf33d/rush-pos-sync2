@@ -1,6 +1,7 @@
 package com.rush.service;
 
 import com.rush.model.*;
+import com.rush.model.dto.*;
 import com.rush.model.enums.MerchantStatus;
 import com.rush.model.enums.Screen;
 import com.rush.repository.*;
@@ -140,9 +141,7 @@ public class MerchantService {
             params.add(new BasicNameValuePair("app_secret", merchant.getMerchantApiSecret()));
 
             //GET Token
-            String jsonResponse = apiService.call(url, params, "POST", null);
-            JSONParser parser = new JSONParser();
-            JSONObject tokenJSON = (JSONObject) parser.parse(jsonResponse);
+            JSONObject tokenJSON  = apiService.call(url, params, "POST", null);
 
             if (tokenJSON.get("message") != null) {
                 apiResponse.setResponseCode("500");
@@ -153,8 +152,7 @@ public class MerchantService {
             //GET Employees
             url = baseUrl + merchantEmployeesEndpoint;
             params = new ArrayList<>();
-            jsonResponse = apiService.call(url, params, "GET", token);
-            JSONObject jsonObj = (JSONObject) parser.parse(jsonResponse);
+            JSONObject jsonObj = apiService.call(url, params, "GET", token);
             List<JSONObject> accounts = (ArrayList) jsonObj.get("data");
             for (JSONObject account : accounts) {
                 String uuid = (String) account.get("uuid");
@@ -171,8 +169,6 @@ public class MerchantService {
             apiResponse.setData(accounts);
             apiResponse.setResponseCode("200");
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
             e.printStackTrace();
         }
         return apiResponse;
@@ -365,10 +361,7 @@ public class MerchantService {
             params.add(new BasicNameValuePair("app_secret", merchant.getMerchantApiSecret()));
 
             //GET Token
-            String jsonResponse = apiService.call(url, params, "POST", null);
-            JSONParser parser = new JSONParser();
-            JSONObject tokenJSON = (JSONObject) parser.parse(jsonResponse);
-
+            JSONObject tokenJSON = apiService.call(url, params, "POST", null);
             if (tokenJSON.get("message") != null) {
                 apiResponse.setResponseCode("500");
                 return apiResponse;
@@ -379,8 +372,7 @@ public class MerchantService {
             List<BranchDTO> branchDTOs = new ArrayList<>();
             url = baseUrl + branchesEndpoint;
             params = new ArrayList<>();
-            jsonResponse = apiService.call(url, params, "GET", token);
-            JSONObject jsonObj = (JSONObject) parser.parse(jsonResponse);
+            JSONObject jsonObj  = apiService.call(url, params, "GET", token);
             List<JSONObject> branches = (ArrayList) jsonObj.get("data");
             for (JSONObject branch : branches) {
                 BranchDTO branchDTO = new BranchDTO();
@@ -397,8 +389,6 @@ public class MerchantService {
             apiResponse.setData(branchDTOs);
             apiResponse.setResponseCode("200");
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
             e.printStackTrace();
         }
         return apiResponse;

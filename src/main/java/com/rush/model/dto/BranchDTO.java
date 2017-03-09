@@ -1,4 +1,4 @@
-package com.rush.model;
+package com.rush.model.dto;
 
 /**
  * Created by aomine on 11/2/16.
@@ -8,6 +8,16 @@ public class BranchDTO {
     private Long branchId;
     private Boolean withVk;
     private String uuid;
+
+    private String logoUrl;
+
+    public String getLogoUrl() {
+        return logoUrl;
+    }
+
+    public void setLogoUrl(String logoUrl) {
+        this.logoUrl = logoUrl;
+    }
 
     public String getUuid() {
         return uuid;

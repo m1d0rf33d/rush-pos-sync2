@@ -1,4 +1,4 @@
-package com.rush.model;
+package com.rush.model.dto;
 
 /**
  * Created by aomine on 10/22/16.

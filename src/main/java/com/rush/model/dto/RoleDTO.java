@@ -1,4 +1,4 @@
-package com.rush.model;
+package com.rush.model.dto;
 
 import java.util.List;
 
