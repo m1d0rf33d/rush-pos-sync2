@@ -2,6 +2,7 @@ package com.rush.service.widget;
 
 import com.rush.model.Merchant;
 import com.rush.model.enums.RushTokenType;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -31,8 +32,8 @@ import java.util.List;
 @PropertySource("classpath:api.properties")
 public class TokenService {
 
-    private HashMap<String, String> rushTokens;
-    private HashMap<String, String> widgetTokens;
+    private HashMap<String, String> rushTokens = new HashMap<>();
+    private HashMap<String, String> widgetTokens = new HashMap<>();
 
     @Value("${widget.auth.endpoint}")
     private String widgetAuthEndpoint;
@@ -57,9 +58,10 @@ public class TokenService {
             url = url.replace(":username", "admin").replace(":password", "admin");
             url = url.replace(":clientId", merchant.getClientId());
 
-            String encodedSecret = merchant.getClientId() + ":" + merchant.getClientSecret();
+            String str = merchant.getClientId() + ":" + merchant.getClientSecret();
+            String encodedSecret = Base64.encodeBase64String(str.getBytes());
             HttpPost httpPost = new HttpPost(url);
-            httpPost.addHeader("Authorization", encodedSecret);
+            httpPost.addHeader("Authorization", "Basic " + encodedSecret);
             httpPost.addHeader("Content-Type", "application/json");
             HttpResponse response = httpClient.execute(httpPost);
 
@@ -73,12 +75,16 @@ public class TokenService {
                 result.append(line);
             }
             httpClient.close();
-            token = result.toString();
+            JSONParser parser = new JSONParser();
+            JSONObject jsonObject = (JSONObject) parser.parse(result.toString());
+            token = (String) jsonObject.get("access_token");
             widgetTokens.put(merchant.getUniqueKey(), token);
-
+            return token;
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
             e.printStackTrace();
         }
         return null;
@@ -124,7 +130,7 @@ public class TokenService {
             JSONObject jsonObject = (JSONObject) parser.parse(result.toString());
             token = (String) jsonObject.get("token");
             rushTokens.put(key, token);
-
+            return token;
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {

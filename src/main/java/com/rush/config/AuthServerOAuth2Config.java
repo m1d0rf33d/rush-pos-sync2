@@ -50,8 +50,8 @@ public class AuthServerOAuth2Config extends AuthorizationServerConfigurerAdapter
     @Override
     public void configure(ClientDetailsServiceConfigurer clients)
             throws Exception {
-        clients.jdbc(dataSource);
-            /*    .withClient("taf")
+        clients.jdbc(dataSource)
+                .withClient("taf")
                 .secret("taf_secret")
                 .accessTokenValiditySeconds(0)
                 .authorizedGrantTypes(
@@ -63,7 +63,7 @@ public class AuthServerOAuth2Config extends AuthorizationServerConfigurerAdapter
                 .accessTokenValiditySeconds(0)
                 .authorizedGrantTypes(
                         "password","authorization_code", "refresh_token")
-                .scopes("trust");*/
+                .scopes("trust");
     }
 
     @Override

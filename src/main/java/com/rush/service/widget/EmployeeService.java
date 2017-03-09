@@ -1,9 +1,6 @@
 package com.rush.service.widget;
 
-import com.rush.model.ApiResponse;
-import com.rush.model.MerchantScreen;
-import com.rush.model.User;
-import com.rush.model.UserRole;
+import com.rush.model.*;
 import com.rush.model.dto.EmployeeDTO;
 import com.rush.model.dto.LoginDTO;
 import com.rush.model.enums.WidgetCode;
@@ -34,8 +31,6 @@ public class EmployeeService {
     private String rushHost;
     @Value("${login.employee.endpoint}")
     private String loginEmployeeEndpoint;
-    @Value("${employee.access.endpoint}")
-    private String employeeAccessEndpoint;
     @Value("${widget.host}")
     private String widgetHost;
 
@@ -49,7 +44,7 @@ public class EmployeeService {
     @Autowired
     private APIService apiService;
 
-    public ApiResponse<EmployeeDTO> login(LoginDTO loginDTO, String token) {
+    public ApiResponse<EmployeeDTO> login(LoginDTO loginDTO, String token, Merchant merchant) {
         ApiResponse apiResponse = new ApiResponse();
          try {
              List<NameValuePair> params = new ArrayList<>();
@@ -58,7 +53,7 @@ public class EmployeeService {
              if (loginDTO.getPin() != null) {
                  params.add(new BasicNameValuePair("pin", loginDTO.getPin()));
              }
-             String url = rushHost + loginEmployeeEndpoint;
+             String url = rushHost + loginEmployeeEndpoint.replace(":merchant_type", merchant.getMerchantType().toString().toLowerCase());
              JSONObject jsonObject = apiService.call((url), params, "post", token);
              if (jsonObject != null) {
 
@@ -68,10 +63,8 @@ public class EmployeeService {
                      employee.setId((String) data.get("id"));
                      employee.setName((String) data.get("name"));
                      apiResponse.setData(employee);
-                 } else {
-                     apiResponse.setResponseCode(WidgetCode.X6);
-                     apiResponse.setMessage((String) jsonObject.get("message"));
                  }
+                 apiResponse.setMessage((String) jsonObject.get("message"));
                  apiResponse.setErrorCode((String) jsonObject.get("error_code"));
              }
          } catch (IOException e) {

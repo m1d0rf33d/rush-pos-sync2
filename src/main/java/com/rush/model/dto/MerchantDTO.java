@@ -22,7 +22,15 @@ public class MerchantDTO {
     private String backgroundUrl;
     private String stampsUrl;
     private String grayStampsUrl;
+    private String merchantType;
 
+    public String getMerchantType() {
+        return merchantType;
+    }
+
+    public void setMerchantType(String merchantType) {
+        this.merchantType = merchantType;
+    }
 
     public String getBackgroundUrl() {
         return backgroundUrl;

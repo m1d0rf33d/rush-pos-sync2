@@ -27,7 +27,7 @@ public class MerchantApiService {
     private String rushHost;
     @Value("${branches.endpoint}")
     private String branchesEndpoint;
-    @Value("${merchantDesignEndpoint}")
+    @Value("${merchant.design.endpoint}")
     private String merchantDesignEndpoint;
 
     @Autowired
@@ -37,12 +37,14 @@ public class MerchantApiService {
 
         ApiResponse apiResponse = new ApiResponse();
 
-        String url = rushHost + branchesEndpoint;
+        String merchantType = merchant.getMerchantType().toString().toLowerCase();
+        String url = rushHost + branchesEndpoint.replace(":merchant_type", merchantType);
 
         try {
             JSONObject jsonObject = apiService.call(url, null, "get", token);
             List<BranchDTO> branchDTOs = new ArrayList<>();
             if (jsonObject != null) {
+                apiResponse.setErrorCode((String) jsonObject.get("error_code"));
                 List<JSONObject> data = (ArrayList) jsonObject.get("data");
                 for (JSONObject json : data) {
                     BranchDTO branchDTO = new BranchDTO();
@@ -52,19 +54,18 @@ public class MerchantApiService {
                     branchDTOs.add(branchDTO);
                 }
                 apiResponse.setData(branchDTOs);
-                apiResponse.setResponseCode(WidgetCode.X2);
             }
         } catch (IOException e) {
             e.printStackTrace();
-            apiResponse.setResponseCode(WidgetCode.X3);
         }
         return apiResponse;
     }
 
-    public ApiResponse<MerchantDTO> getMerchantDesign(String token) {
+    public ApiResponse<MerchantDTO> getMerchantDesign(String token, Merchant merchant) {
         ApiResponse apiResponse = new ApiResponse();
+        String merchantType = merchant.getMerchantType().toString().toLowerCase();
         try {
-            String url = rushHost + merchantDesignEndpoint;
+            String url = rushHost + merchantDesignEndpoint.replace(":merchant_type", merchantType);
             JSONObject jsonObject = apiService.call(url, new ArrayList<>(), "get", token);
             if (jsonObject != null) {
                 JSONObject dataJSON = (JSONObject) jsonObject.get("data");
@@ -74,7 +75,7 @@ public class MerchantApiService {
                 merchantDTO.setStampsUrl((String) merchantJSON.get("stamp_url"));
                 merchantDTO.setGrayStampsUrl((String) merchantJSON.get("stamp_gray_url"));
                 apiResponse.setData(merchantDTO);
-                apiResponse.setResponseCode(WidgetCode.X2);
+                apiResponse.setErrorCode((String) jsonObject.get("error_code"));
             }
         } catch (IOException e) {
             e.printStackTrace();
