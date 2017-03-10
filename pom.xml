@@ -143,6 +143,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>rush-pos-sync</finalName>
 		<filters>
 			<filter>src/main/resources/filters/filter-${environment}.properties</filter>
 		</filters>
@@ -161,7 +162,24 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			<plugin><!-- don't pack the war  -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<configuration>
+							<webappDirectory>target/</webappDirectory>
+							<archiveClasses>true</archiveClasses>
+						</configuration>
+						<goals>
+							<goal>exploded</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
+
 	</build>
 
 

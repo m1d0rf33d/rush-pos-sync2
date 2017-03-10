@@ -44,17 +44,21 @@ public class EmployeeService {
     @Autowired
     private APIService apiService;
 
-    public ApiResponse<EmployeeDTO> login(LoginDTO loginDTO, String token, Merchant merchant) {
+    public ApiResponse<EmployeeDTO> login(String employeeId,
+                                          String branchId,
+                                          String pin,
+                                          String merchantType,
+                                          String rushToken) {
         ApiResponse apiResponse = new ApiResponse();
          try {
              List<NameValuePair> params = new ArrayList<>();
-             params.add(new BasicNameValuePair("employee_id", loginDTO.getEmployeeId()));
-             params.add(new BasicNameValuePair("branch_id", loginDTO.getBranchId()));
-             if (loginDTO.getPin() != null) {
-                 params.add(new BasicNameValuePair("pin", loginDTO.getPin()));
+             params.add(new BasicNameValuePair("employee_id", employeeId));
+             params.add(new BasicNameValuePair("branch_id", branchId));
+             if (pin != null) {
+                 params.add(new BasicNameValuePair("pin", pin));
              }
-             String url = rushHost + loginEmployeeEndpoint.replace(":merchant_type", merchant.getMerchantType().toString().toLowerCase());
-             JSONObject jsonObject = apiService.call((url), params, "post", token);
+             String url = rushHost + loginEmployeeEndpoint.replace(":merchant_type", merchantType);
+             JSONObject jsonObject = apiService.call((url), params, "post", rushToken);
              if (jsonObject != null) {
 
                  if (jsonObject.get("error_code").equals("0x0")) {

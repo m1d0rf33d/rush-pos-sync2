@@ -61,9 +61,8 @@ public class MerchantApiService {
         return apiResponse;
     }
 
-    public ApiResponse<MerchantDTO> getMerchantDesign(String token, Merchant merchant) {
+    public ApiResponse<MerchantDTO> getMerchantDesign(String token, String merchantType) {
         ApiResponse apiResponse = new ApiResponse();
-        String merchantType = merchant.getMerchantType().toString().toLowerCase();
         try {
             String url = rushHost + merchantDesignEndpoint.replace(":merchant_type", merchantType);
             JSONObject jsonObject = apiService.call(url, new ArrayList<>(), "get", token);

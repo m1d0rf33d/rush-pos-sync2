@@ -1,7 +1,9 @@
 package com.rush.service.widget;
 
 import com.rush.model.Merchant;
+import com.rush.model.enums.MerchantStatus;
 import com.rush.model.enums.RushTokenType;
+import com.rush.repository.MerchantRepository;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -14,6 +16,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
@@ -44,15 +47,19 @@ public class TokenService {
     @Value("${rush.auth.endpoint}")
     private String rushAuthEndpoint;
 
-    public String getWidgetToken(Merchant merchant) {
+    @Autowired
+    private MerchantRepository merchantRepository;
 
-        String token = widgetTokens.get(merchant.getUniqueKey());
+    public String getWidgetToken(String merchantKey) {
+
+        String token = widgetTokens.get(merchantKey);
         if (token != null) {
             return token;
         }
 
-
         try {
+            Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus(merchantKey, MerchantStatus.ACTIVE);
+
             CloseableHttpClient httpClient = HttpClientBuilder.create().build();
             String url = widgetHost + widgetAuthEndpoint;
             url = url.replace(":username", "admin").replace(":password", "admin");
@@ -90,15 +97,16 @@ public class TokenService {
         return null;
     }
 
-    public String getRushtoken(Merchant merchant, RushTokenType rushTokenType) {
+    public String getRushtoken(String merchantKey, RushTokenType rushTokenType) {
 
-        String key = merchant.getUniqueKey() + ":" + rushTokenType.toString();
+        String key = merchantKey + ":" + rushTokenType.toString();
         String token = rushTokens.get(key);
         if (token != null) {
             return token;
         }
 
         try {
+            Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus(merchantKey, MerchantStatus.ACTIVE);
             CloseableHttpClient httpClient = HttpClientBuilder.create().build();
             String url = rushHost + rushAuthEndpoint;
             String appKey, appSecret;

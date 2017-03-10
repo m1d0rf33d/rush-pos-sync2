@@ -3,14 +3,20 @@ package com.rush.model.dto;
 /**
  * Created by aomine on 3/9/17.
  */
-public class LoginDTO {
+public class LoginMemberDTO {
 
-    private String employeeId;
-    private String branchId;
-    private String pin;
+    private String mobileNumber;
     private String merchantKey;
+    private String employeeId;
+    private String appState;
 
+    public String getMobileNumber() {
+        return mobileNumber;
+    }
 
+    public void setMobileNumber(String mobileNumber) {
+        this.mobileNumber = mobileNumber;
+    }
 
     public String getMerchantKey() {
         return merchantKey;
@@ -28,19 +34,11 @@ public class LoginDTO {
         this.employeeId = employeeId;
     }
 
-    public String getBranchId() {
-        return branchId;
+    public String getAppState() {
+        return appState;
     }
 
-    public void setBranchId(String branchId) {
-        this.branchId = branchId;
-    }
-
-    public String getPin() {
-        return pin;
-    }
-
-    public void setPin(String pin) {
-        this.pin = pin;
+    public void setAppState(String appState) {
+        this.appState = appState;
     }
 }

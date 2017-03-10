@@ -2,21 +2,19 @@ package com.rush.service.widget;
 
 import com.rush.model.ApiResponse;
 import com.rush.model.Merchant;
-import com.rush.model.WidgetResponse;
-import com.rush.model.dto.*;
+import com.rush.model.dto.BranchDTO;
+import com.rush.model.dto.EmployeeDTO;
+import com.rush.model.dto.MerchantDTO;
 import com.rush.model.enums.MerchantStatus;
 import com.rush.model.enums.RushTokenType;
-import com.rush.model.enums.WidgetCode;
 import com.rush.repository.MerchantRepository;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,65 +38,84 @@ public class WidgetService {
     @Autowired
     private EmployeeService employeeService;
 
-    public WidgetResponse<WidgetInitDTO> initializeWidget(String merchantKey) {
+    public JSONObject initializeWidget(String merchantKey) {
+
+        String widgetToken = tokenService.getWidgetToken(merchantKey);
+        String rushtoken = tokenService.getRushtoken(merchantKey, RushTokenType.MERCHANT_APP);
+
         Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus(merchantKey, MerchantStatus.ACTIVE);
 
-        WidgetResponse widgetResponse = new WidgetResponse();
-        if (merchant == null) {
+        JSONObject payload = new JSONObject();
+        JSONObject data = new JSONObject();
+        JSONObject merchantJSON = new JSONObject();
 
+        if (merchant != null) {
+            merchantJSON.put("name", merchant.getName());
+            merchantJSON.put("token", widgetToken);
+            merchantJSON.put("with_vk", merchant.getWithVk());
+            merchantJSON.put("merchant_key", merchant.getUniqueKey());
+            merchantJSON.put("merchant_type", merchant.getMerchantType().toString().toLowerCase());
+            data.put("merchant", merchantJSON);
         }
-        String widgetToken = tokenService.getWidgetToken(merchant);
-        String rushtoken = tokenService.getRushtoken(merchant, RushTokenType.MERCHANT_APP);
 
-        WidgetInitDTO widgetInitDTO = new WidgetInitDTO();
-        MerchantDTO merchantDTO = new MerchantDTO();
-        merchantDTO.setName(merchant.getName());
-        merchantDTO.setCustomerApiKey(merchant.getCustomerApiKey());
-        merchantDTO.setCustomerApiSecret(merchant.getCustomerApiSecret());
-        merchantDTO.setMerchantApiSecret(merchant.getMerchantApiSecret());
-        merchantDTO.setMerchantApiKey(merchant.getMerchantApiKey());
-        merchantDTO.setToken(widgetToken);
-        merchantDTO.setWithVk(merchant.getWithVk());
-        merchantDTO.setMerchantType(merchant.getMerchantType().toString());
-        widgetInitDTO.setMerchantDTO(merchantDTO);
-
-        ApiResponse<List<BranchDTO>> branchResp = merchantApiService.getBranches(merchant, rushtoken);
-        if (branchResp.getErrorCode().equals("0x0")) {
-            widgetInitDTO.setBranchDTOs(branchResp.getData());
-        } else {
-            widgetResponse.setMessage("Failed to retrieve merchant branches");
+        ApiResponse<List<BranchDTO>> apiResponse = merchantApiService.getBranches(merchant, rushtoken);
+        if (apiResponse.getData() != null) {
+            JSONArray branchArr = new JSONArray();
+            List<BranchDTO> branches = apiResponse.getData();
+            for (BranchDTO branch : branches) {
+                JSONObject branchJSON = new JSONObject();
+                branchJSON.put("name", branch.getBranchName());
+                branchJSON.put("logo_url", branch.getLogoUrl());
+                branchJSON.put("id", branch.getUuid());
+                branchJSON.put("with_vk", branch.getWithVk());
+                branchArr.add(branchJSON);
+            }
+            data.put("branches", branchArr);
         }
-        widgetResponse.setData(widgetInitDTO);
-        return widgetResponse;
+        payload.put("data", data);
+        return payload;
     }
 
-    public WidgetResponse<LoginResponseDTO> loginEmployee(LoginDTO loginDTO) {
-        WidgetResponse widgetResponse = new WidgetResponse();
-        Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus(loginDTO.getMerchantKey(), MerchantStatus.ACTIVE);
+    public JSONObject loginEmployee(JSONObject requestBody) {
 
-        String token = tokenService.getRushtoken(merchant, RushTokenType.MERCHANT_APP);
-        ApiResponse<EmployeeDTO> loginResp = employeeService.login(loginDTO, token, merchant);
-        widgetResponse.setErrorCode(loginResp.getErrorCode());
-        widgetResponse.setMessage(loginResp.getMessage());
+        String merchantType = (String) requestBody.get("merchant_type");
+        String merchantKey = (String) requestBody.get("merchant_key");
+        String employeeLogin = (String) requestBody.get("employee_login");
+        String pin = (String) requestBody.get("pin");
+        String branchId = (String) requestBody.get("branch_id");
 
-        LoginResponseDTO loginResponseDTO = new LoginResponseDTO();
+        String rushToken = tokenService.getRushtoken(merchantKey, RushTokenType.MERCHANT_APP);
+        ApiResponse<EmployeeDTO> loginResp = employeeService.login(employeeLogin, branchId, pin, merchantType,rushToken);
+
+        JSONObject payload = new JSONObject();
+        JSONObject data = new JSONObject();
+
+        payload.put("message", loginResp.getMessage());
+        payload.put("error_code", loginResp.getErrorCode());
 
         if (loginResp.getErrorCode().equals("0x0")) {
             EmployeeDTO employeeDTO = loginResp.getData();
-            loginResponseDTO.setEmployeeDTO(employeeDTO);
+            JSONObject employee = new JSONObject();
+            employee.put("id", employeeDTO.getId());
+            employee.put("name", employeeDTO.getName());
+            data.put("employee", employee);
 
-            ApiResponse<MerchantDTO> merchantDesignResp = merchantApiService.getMerchantDesign(token, merchant);
-            if (merchantDesignResp.getErrorCode().equals("0x0")) {
-                MerchantDTO merchantDTO = merchantDesignResp.getData();
-                loginResponseDTO.setMerchantDTO(merchantDTO);
-            }
+            //Merchant design
+            ApiResponse<MerchantDTO> merchantDesignResp = merchantApiService.getMerchantDesign(rushToken, merchantType);
+            MerchantDTO merchantDTO = merchantDesignResp.getData();
+            JSONObject merchant = new JSONObject();
+            merchant.put("background_url", merchantDTO.getBackgroundUrl());
+            merchant.put("stamps_url", merchantDTO.getStampsUrl());
+            merchant.put("gray_stamps_url", merchantDTO.getGrayStampsUrl());
+            data.put("merchant", merchant);
 
-            ApiResponse<List<String>> accessResp = employeeService.getEmployeeAccess(loginDTO.getEmployeeId());
+            //Screen access
+            ApiResponse<List<String>> accessResp = employeeService.getEmployeeAccess(employeeDTO.getId());
             List<String> screenAccess = accessResp.getData();
-            loginResponseDTO.setScreenAccess(screenAccess);
-            widgetResponse.setData(loginResponseDTO);
+            data.put("access", screenAccess);
         }
-        return widgetResponse;
+        payload.put("data", data);
+        return payload;
     }
 
 }
