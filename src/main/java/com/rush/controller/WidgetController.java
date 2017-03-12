@@ -65,4 +65,8 @@ public class WidgetController {
     public JSONObject issueReward(@RequestBody JSONObject requestBody) {
         return memberService.issueReward(requestBody);
     }
+    @RequestMapping(value = "/api/widget/sendOffline", method = RequestMethod.POST)
+    public JSONObject sendOfflineTransactions(@RequestBody JSONObject requestBody) {
+        return memberService.sendOfflineTransacions(requestBody);
+    }
 }

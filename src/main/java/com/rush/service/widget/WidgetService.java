@@ -85,7 +85,7 @@ public class WidgetService {
         String branchId = (String) requestBody.get("branch_id");
 
         String rushToken = tokenService.getRushtoken(merchantKey, RushTokenType.MERCHANT_APP);
-        ApiResponse<EmployeeDTO> loginResp = employeeService.login(employeeLogin, branchId, pin, merchantType,rushToken);
+        ApiResponse<EmployeeDTO> loginResp = employeeService.login(employeeLogin, branchId, pin,merchantKey, merchantType,rushToken);
 
         JSONObject payload = new JSONObject();
         JSONObject data = new JSONObject();

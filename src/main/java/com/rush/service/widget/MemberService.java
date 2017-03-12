@@ -13,6 +13,7 @@ import com.rush.repository.MerchantRepository;
 import com.rush.service.APIService;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -58,6 +60,8 @@ public class MemberService {
     private String unclaimedRewardsEndpoint;
     @Value("${claim.rewards.endpoint}")
     private String claimRewardsEndpoint;
+    @Value(("${customer.transactions.endpoint}"))
+    private String customerTransactionsEndpoint;
 
     @Autowired
     private APIService apiService;
@@ -128,6 +132,10 @@ public class MemberService {
                         }
                         data.put("rewards", rewards);
                     }
+                    if (appState.equals(AppState.MEMBER_INQUIRY.toString())) {
+                        data.put("transactions", getCustomerTransactions(merchantKey, (String) member.get("id")));
+                    }
+
                     payload.put("data", data);
                 }
             }
@@ -474,6 +482,118 @@ public class MemberService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return payload;
+    }
+
+    public List<JSONObject> getCustomerTransactions(String merchantKey, String customerId) {
+
+        String url = rushHost + customerTransactionsEndpoint;
+        url = url.replace(":customer_uuid", customerId);
+        String token = tokenService.getRushtoken(merchantKey, RushTokenType.CUSTOMER_APP);
+
+        try {
+            JSONObject jsonObject = apiService.call(url, null, "get", token);
+            if (jsonObject != null) {
+                String errorCode = (String) jsonObject.get("error_code");
+                String message = (String) jsonObject.get("message");
+                if (errorCode.equals("0x0")) {
+                    return (ArrayList) jsonObject.get("data");
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    public JSONObject sendOfflineTransacions(JSONObject requestBody) {
+
+        String merchantKey  = (String) requestBody.get("merchant_key");
+        String employeeId   = (String) requestBody.get("employee_id");
+        String appState     = (String) requestBody.get("app_state");
+        String merchantType = (String)requestBody.get("merchant_type");
+
+        JSONObject reqBody = new JSONObject();
+        reqBody.put("merchant_key", merchantKey);
+        reqBody.put("merchant_type", merchantType);
+        reqBody.put("app_state", appState);
+        reqBody.put("employee_id", employeeId);
+
+        List<JSONObject> transactions = (ArrayList) requestBody.get("transactions");
+        List<String> result = new ArrayList<>();
+        for (HashMap transaction : transactions) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("mobileNumber=" + transaction.get("mobile_no"));
+            sb.append(":");
+            sb.append("totalAmount=" + transaction.get("amount"));
+            sb.append(":");
+            sb.append("orNumber=" + transaction.get("or_no"));
+            sb.append(":");
+            sb.append("date=" + transaction.get("date"));
+            sb.append(":");
+
+            reqBody.put("mobile_no", transaction.get("mobile_no"));
+
+            JSONObject payload = loginMember(reqBody);
+            String errorCode = (String) payload.get("error_code");
+            String message = (String) payload.get("message");
+
+
+            if (errorCode.equals("0x0")) {
+                JSONObject data = (JSONObject) payload.get("data");
+                JSONObject member = (JSONObject) data.get("member");
+
+                reqBody.put("or_no", transaction.get("or_no"));
+                reqBody.put("amount", transaction.get("amount"));
+                reqBody.put("customer_id", member.get("id"));
+
+                payload = earnPoints(reqBody);
+                errorCode = (String) payload.get("error_code");
+                message = (String) payload.get("message");
+
+                if (errorCode.equals("0x0")) {
+                    sb.append("status=" + "Submitted");
+                    sb.append(":");
+                    sb.append("message=Points earned.");
+                } else {
+                    JSONObject error = (JSONObject) payload.get("errors");
+                    String errorMessage = "";
+                    if (error != null) {
+                        if (error.get("or_no") != null) {
+                            List<String> l = (ArrayList<String>) error.get("or_no");
+                            errorMessage = l.get(0);
+                        }
+                        if (error.get("amount") != null) {
+                            List<String> l = (ArrayList<String>) error.get("amount");
+                            errorMessage = l.get(0);
+                        }
+                    }
+                    if (payload.get("message") != null) {
+                        errorMessage = (String) payload.get("message");
+                    }
+                    sb.append("status=" + "Failed");
+                    sb.append(":");
+                    sb.append("message=" + errorMessage);
+                }
+
+
+            } else {
+                sb.append("status=" + "Failed");
+                sb.append(":");
+                sb.append("message=" + payload.get("message"));
+            }
+            result.add(sb.toString());
+        }
+
+        JSONObject payload = new JSONObject();
+        payload.put("error_code", "0x0");
+        payload.put("message", "Submit offline transaction successful.");
+        JSONObject data = new JSONObject();
+        data.put("transactions", result);
+        payload.put("data", data);
+
         return payload;
     }
 }

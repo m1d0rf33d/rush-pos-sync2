@@ -4,6 +4,7 @@ import com.rush.model.ApiResponse;
 import com.rush.model.dto.BranchDTO;
 import com.rush.model.Merchant;
 import com.rush.model.dto.MerchantDTO;
+import com.rush.model.enums.RushTokenType;
 import com.rush.model.enums.WidgetCode;
 import com.rush.service.APIService;
 import org.json.simple.JSONObject;
@@ -32,6 +33,8 @@ public class MerchantApiService {
 
     @Autowired
     private APIService apiService;
+    @Autowired
+    private TokenService tokenService;
 
     public ApiResponse<List<BranchDTO>> getBranches(Merchant merchant, String token) {
 
@@ -44,6 +47,10 @@ public class MerchantApiService {
             JSONObject jsonObject = apiService.call(url, null, "get", token);
             List<BranchDTO> branchDTOs = new ArrayList<>();
             if (jsonObject != null) {
+                if (jsonObject.get("error_code") == null) {
+                    String newToken = tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP);
+                    return getBranches(merchant, newToken);
+                }
                 apiResponse.setErrorCode((String) jsonObject.get("error_code"));
                 List<JSONObject> data = (ArrayList) jsonObject.get("data");
                 for (JSONObject json : data) {

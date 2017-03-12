@@ -3,6 +3,7 @@ package com.rush.service.widget;
 import com.rush.model.*;
 import com.rush.model.dto.EmployeeDTO;
 import com.rush.model.dto.LoginDTO;
+import com.rush.model.enums.RushTokenType;
 import com.rush.model.enums.WidgetCode;
 import com.rush.repository.MerchantScreenRepository;
 import com.rush.repository.UserRepository;
@@ -43,10 +44,13 @@ public class EmployeeService {
 
     @Autowired
     private APIService apiService;
+    @Autowired
+    private TokenService tokenService;
 
     public ApiResponse<EmployeeDTO> login(String employeeId,
                                           String branchId,
                                           String pin,
+                                          String merchantKey,
                                           String merchantType,
                                           String rushToken) {
         ApiResponse apiResponse = new ApiResponse();
@@ -60,7 +64,10 @@ public class EmployeeService {
              String url = rushHost + loginEmployeeEndpoint.replace(":merchant_type", merchantType);
              JSONObject jsonObject = apiService.call((url), params, "post", rushToken);
              if (jsonObject != null) {
-
+                 String errorCode = (String) jsonObject.get("error_code");
+                 if (errorCode == null) {
+                    tokenService.refreshToken(merchantKey, RushTokenType.MERCHANT_APP);
+                 }
                  if (jsonObject.get("error_code").equals("0x0")) {
                      JSONObject data = (JSONObject) jsonObject.get("data");
                      EmployeeDTO employee = new EmployeeDTO();
