@@ -32,15 +32,37 @@ public class WidgetController {
     }
 
     @RequestMapping(value = "/api/widget/login/member", method = RequestMethod.POST)
-    public JSONObject loginMember(@RequestBody JSONObject jsonObject) {
-        return memberService.loginMember(jsonObject);
+    public JSONObject loginMember(@RequestBody JSONObject requestBody) {
+        return memberService.loginMember(requestBody);
     }
 
     @RequestMapping(value = "/api/widget/register", method = RequestMethod.POST)
-    public JSONObject registerMember(@RequestBody JSONObject jsonObject) {
-
-        return memberService.registerMember(jsonObject);
+    public JSONObject registerMember(@RequestBody JSONObject requestBody) {
+        return memberService.registerMember(requestBody);
     }
 
+    @RequestMapping(value = "/api/widget/earn", method = RequestMethod.POST)
+    public JSONObject earnPoints(@RequestBody JSONObject requestBody) {
+        return memberService.earnPoints(requestBody);
+    }
 
+    @RequestMapping(value = "/api/widget/guestPurchase", method = RequestMethod.POST)
+    public JSONObject guestPurchase(@RequestBody JSONObject requestBody) {
+        return memberService.guestPurchase(requestBody);
+    }
+
+    @RequestMapping(value = "/api/widget/redeem", method = RequestMethod.POST)
+    public JSONObject redeemReward (@RequestBody  JSONObject requestBody) {
+        return memberService.redeemReward(requestBody);
+    }
+
+    @RequestMapping(value = "/api/widget/payWithPoints", method = RequestMethod.POST)
+    public JSONObject payWithPoints(@RequestBody JSONObject requestBody) {
+        return memberService.payWithPoints(requestBody);
+    }
+
+    @RequestMapping(value = "/api/widget/issueReward", method = RequestMethod.POST)
+    public JSONObject issueReward(@RequestBody JSONObject requestBody) {
+        return memberService.issueReward(requestBody);
+    }
 }

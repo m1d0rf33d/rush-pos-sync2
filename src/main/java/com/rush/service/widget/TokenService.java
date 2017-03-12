@@ -149,5 +149,56 @@ public class TokenService {
         return null;
     }
 
+    public String refreshToken(String merchantKey, RushTokenType rushTokenType) {
+
+        String key = merchantKey + ":" + rushTokenType.toString();
+        String token = rushTokens.get(key);
+        if (token != null) {
+            rushTokens.remove(key);
+        }
+
+        try {
+            Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus(merchantKey, MerchantStatus.ACTIVE);
+            CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+            String url = rushHost + rushAuthEndpoint;
+            String appKey, appSecret;
+            if (rushTokenType.equals(RushTokenType.MERCHANT_APP)) {
+                appKey = merchant.getMerchantApiKey();
+                appSecret = merchant.getMerchantApiSecret();
+            } else {
+                appKey = merchant.getCustomerApiKey();
+                appSecret = merchant.getCustomerApiSecret();
+            }
+
+            HttpPost httpPost = new HttpPost(url);
+            List<NameValuePair> params = new ArrayList<>();
+            params.add(new BasicNameValuePair("app_key", appKey));
+            params.add(new BasicNameValuePair("app_secret", appSecret));
+            httpPost.setEntity(new UrlEncodedFormEntity(params));
+            HttpResponse response = httpClient.execute(httpPost);
+
+            BufferedReader rd = new BufferedReader(
+                    new InputStreamReader(response.getEntity().getContent()));
+
+            StringBuffer result = new StringBuffer();
+            String line;
+            while ((line = rd.readLine()) != null) {
+                result.append(line);
+            }
+            httpClient.close();
+            JSONParser parser = new JSONParser();
+            JSONObject jsonObject = (JSONObject) parser.parse(result.toString());
+            token = (String) jsonObject.get("token");
+            rushTokens.put(key, token);
+            return token;
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 }
