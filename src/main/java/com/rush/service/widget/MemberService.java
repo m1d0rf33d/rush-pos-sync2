@@ -13,6 +13,7 @@ import com.rush.repository.MerchantRepository;
 import com.rush.service.APIService;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.glassfish.jersey.jaxb.internal.XmlCollectionJaxbProvider;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -495,6 +496,10 @@ public class MemberService {
             JSONObject jsonObject = apiService.call(url, null, "get", token);
             if (jsonObject != null) {
                 String errorCode = (String) jsonObject.get("error_code");
+                if (errorCode == null) {
+                    tokenService.refreshToken(merchantKey, RushTokenType.CUSTOMER_APP);
+                    return getCustomerTransactions(merchantKey, customerId);
+                }
                 String message = (String) jsonObject.get("message");
                 if (errorCode.equals("0x0")) {
                     return (ArrayList) jsonObject.get("data");
