@@ -11,6 +11,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -23,6 +25,7 @@ import java.util.Properties;
  * Created by aomine on 10/18/16.
  */
 @Service
+@PropertySource("classpath:api.properties")
 public class MerchantService {
 
     @Autowired
@@ -40,30 +43,15 @@ public class MerchantService {
     @Autowired
     private BranchRepository branchRepository;
 
+    @Value("${rush.host}")
     private String baseUrl;
+    @Value("${merchant.employees.endpoint}")
     private String merchantEmployeesEndpoint;
+    @Value("${rush.auth.endpoint}")
     private String authorizationEndpoint;
+    @Value("${branches.endpoint}")
     private String branchesEndpoint;
 
-
-    public MerchantService() {
-        try {
-            Properties prop = new Properties();
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream("api.properties");
-            if (inputStream != null) {
-                prop.load(inputStream);
-                inputStream.close();
-            }
-
-            baseUrl = prop.getProperty("base_url");
-            merchantEmployeesEndpoint = prop.getProperty("merchant_employees_endpoint");
-            authorizationEndpoint = prop.getProperty("authorization_endpoint");
-            branchesEndpoint = prop.getProperty("get_branches_endpoint");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     public ApiResponse<List<MerchantDTO>> getMerchants() {
@@ -370,14 +358,14 @@ public class MerchantService {
             String token = (String) tokenJSON.get("token");
             //GET Employees
             List<BranchDTO> branchDTOs = new ArrayList<>();
-            url = baseUrl + branchesEndpoint;
+            url = baseUrl + branchesEndpoint.replace(":merchant_type", merchant.getMerchantType().toString().toLowerCase());
             params = new ArrayList<>();
             JSONObject jsonObj  = apiService.call(url, params, "GET", token);
             List<JSONObject> branches = (ArrayList) jsonObj.get("data");
             for (JSONObject branch : branches) {
                 BranchDTO branchDTO = new BranchDTO();
                 branchDTO.setBranchName((String) branch.get("name"));
-                String uuid = (String) branch.get("uuid");
+                String uuid = (String) branch.get("id");
                 branchDTO.setUuid(uuid);
                 Branch b = branchRepository.findOneByUuid(uuid);
                 if (b != null) {
