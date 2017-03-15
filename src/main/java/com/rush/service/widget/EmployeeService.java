@@ -3,6 +3,7 @@ package com.rush.service.widget;
 import com.rush.model.*;
 import com.rush.model.dto.EmployeeDTO;
 import com.rush.model.dto.LoginDTO;
+import com.rush.model.enums.MerchantClassification;
 import com.rush.model.enums.RushTokenType;
 import com.rush.model.enums.WidgetCode;
 import com.rush.repository.MerchantScreenRepository;
@@ -34,6 +35,8 @@ public class EmployeeService {
     private String loginEmployeeEndpoint;
     @Value("${widget.host}")
     private String widgetHost;
+    @Value("${sg.login.endpoint}")
+    private String sgLoginEndpoint;
 
     @Autowired
     private UserRoleRepository userRoleRepository;
@@ -50,9 +53,7 @@ public class EmployeeService {
     public ApiResponse<EmployeeDTO> login(String employeeId,
                                           String branchId,
                                           String pin,
-                                          String merchantKey,
-                                          String merchantType,
-                                          String rushToken) {
+                                          Merchant merchant) {
         ApiResponse apiResponse = new ApiResponse();
          try {
              List<NameValuePair> params = new ArrayList<>();
@@ -61,12 +62,19 @@ public class EmployeeService {
              if (pin != null) {
                  params.add(new BasicNameValuePair("pin", pin));
              }
-             String url = rushHost + loginEmployeeEndpoint.replace(":merchant_type", merchantType);
-             JSONObject jsonObject = apiService.call((url), params, "post", rushToken);
+             String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
+             String endpoint;
+             if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
+                 endpoint = sgLoginEndpoint;
+             } else {
+                 endpoint = loginEmployeeEndpoint;
+             }
+             String url = rushHost + endpoint.replace(":merchant_type", merchant.getMerchantType());
+             JSONObject jsonObject = apiService.call((url), params, "post", token);
              if (jsonObject != null) {
                  String errorCode = (String) jsonObject.get("error_code");
                  if (errorCode == null) {
-                    tokenService.refreshToken(merchantKey, RushTokenType.MERCHANT_APP);
+                    tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                  }
                  if (jsonObject.get("error_code").equals("0x0")) {
                      JSONObject data = (JSONObject) jsonObject.get("data");

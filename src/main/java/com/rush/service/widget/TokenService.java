@@ -1,6 +1,7 @@
 package com.rush.service.widget;
 
 import com.rush.model.Merchant;
+import com.rush.model.enums.MerchantClassification;
 import com.rush.model.enums.MerchantStatus;
 import com.rush.model.enums.RushTokenType;
 import com.rush.repository.MerchantRepository;
@@ -46,6 +47,8 @@ public class TokenService {
     private String rushHost;
     @Value("${rush.auth.endpoint}")
     private String rushAuthEndpoint;
+    @Value("${sg.auth.endpoint}")
+    private String sgAuthEndpoint;
 
     @Autowired
     private MerchantRepository merchantRepository;
@@ -97,7 +100,7 @@ public class TokenService {
         return null;
     }
 
-    public String getRushtoken(String merchantKey, RushTokenType rushTokenType) {
+    public String getRushtoken(String merchantKey, RushTokenType rushTokenType, MerchantClassification classification) {
 
         String key = merchantKey + ":" + rushTokenType.toString();
         String token = rushTokens.get(key);
@@ -108,7 +111,13 @@ public class TokenService {
         try {
             Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus(merchantKey, MerchantStatus.ACTIVE);
             CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-            String url = rushHost + rushAuthEndpoint;
+            String endpoint = "";
+            if (classification.equals(MerchantClassification.BASIC)) {
+                endpoint = rushAuthEndpoint;
+            } else if (classification.equals(MerchantClassification.GLOBE_SG)) {
+                endpoint = sgAuthEndpoint;
+            }
+            String url = rushHost + endpoint;
             String appKey, appSecret;
             if (rushTokenType.equals(RushTokenType.MERCHANT_APP)) {
                 appKey = merchant.getMerchantApiKey();
@@ -149,7 +158,7 @@ public class TokenService {
         return null;
     }
 
-    public String refreshToken(String merchantKey, RushTokenType rushTokenType) {
+    public String refreshToken(String merchantKey, RushTokenType rushTokenType, MerchantClassification classification) {
 
         String key = merchantKey + ":" + rushTokenType.toString();
         String token = rushTokens.get(key);
@@ -160,7 +169,13 @@ public class TokenService {
         try {
             Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus(merchantKey, MerchantStatus.ACTIVE);
             CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-            String url = rushHost + rushAuthEndpoint;
+            String endpoint = "";
+            if (classification.equals(MerchantClassification.BASIC)) {
+                endpoint = rushAuthEndpoint;
+            } else if (classification.equals(MerchantClassification.GLOBE_SG)) {
+                endpoint = sgAuthEndpoint;
+            }
+            String url = rushHost + endpoint;
             String appKey, appSecret;
             if (rushTokenType.equals(RushTokenType.MERCHANT_APP)) {
                 appKey = merchant.getMerchantApiKey();

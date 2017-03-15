@@ -1,5 +1,6 @@
 package com.rush.model;
 
+import com.rush.model.enums.MerchantClassification;
 import com.rush.model.enums.MerchantStatus;
 import com.rush.model.enums.MerchantType;
 
@@ -28,9 +29,6 @@ public class Merchant {
     private String customerApiKey;
     @Column(name = "customer_api_secret")
     private String customerApiSecret;
-    @Column
-    @Enumerated(EnumType.STRING)
-    private MerchantType merchantType;
     @Enumerated(EnumType.STRING)
     @Column
     private MerchantStatus status;
@@ -40,6 +38,26 @@ public class Merchant {
     private String clientSecret;
     @Column
     private Boolean withVk;
+    @Column
+    private String merchantType;
+    @Enumerated(EnumType.STRING)
+    private MerchantClassification merchantClassification;
+
+    public MerchantClassification getMerchantClassification() {
+        return merchantClassification;
+    }
+
+    public void setMerchantClassification(MerchantClassification merchantClassification) {
+        this.merchantClassification = merchantClassification;
+    }
+
+    public String getMerchantType() {
+        return merchantType;
+    }
+
+    public void setMerchantType(String merchantType) {
+        this.merchantType = merchantType;
+    }
 
     public Boolean getWithVk() {
         return withVk;
@@ -63,14 +81,6 @@ public class Merchant {
 
     public void setClientSecret(String clientSecret) {
         this.clientSecret = clientSecret;
-    }
-
-    public MerchantType getMerchantType() {
-        return merchantType;
-    }
-
-    public void setMerchantType(MerchantType merchantType) {
-        this.merchantType = merchantType;
     }
 
     public MerchantStatus getStatus() {

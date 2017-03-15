@@ -4,6 +4,7 @@ import com.rush.model.ApiResponse;
 import com.rush.model.dto.BranchDTO;
 import com.rush.model.Merchant;
 import com.rush.model.dto.MerchantDTO;
+import com.rush.model.enums.MerchantClassification;
 import com.rush.model.enums.RushTokenType;
 import com.rush.model.enums.WidgetCode;
 import com.rush.service.APIService;
@@ -30,48 +31,55 @@ public class MerchantApiService {
     private String branchesEndpoint;
     @Value("${merchant.design.endpoint}")
     private String merchantDesignEndpoint;
+    @Value("${sg.branches.endpoint}")
+    private String sgBranchesEndpoint;
+    @Value("${sg.merchant.design.endpoint}")
+    private String sgMerchantDesignEndpoint;
 
     @Autowired
     private APIService apiService;
     @Autowired
     private TokenService tokenService;
+    @Autowired
+    private GlobeSgService globeSgService;
 
-    public ApiResponse<List<BranchDTO>> getBranches(Merchant merchant, String token) {
+    public List<JSONObject> getBranches(Merchant merchant) {
 
-        ApiResponse apiResponse = new ApiResponse();
+        if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
+            return globeSgService.getBranches(merchant);
+        } else {
+            String url   = rushHost + branchesEndpoint.replace(":merchant_type", merchant.getMerchantType());
+            String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
 
-        String merchantType = merchant.getMerchantType().toString().toLowerCase();
-        String url = rushHost + branchesEndpoint.replace(":merchant_type", merchantType);
-
-        try {
-            JSONObject jsonObject = apiService.call(url, null, "get", token);
-            List<BranchDTO> branchDTOs = new ArrayList<>();
-            if (jsonObject != null) {
-                if (jsonObject.get("error_code") == null) {
-                    String newToken = tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP);
-                    return getBranches(merchant, newToken);
+            try {
+                JSONObject jsonObject = apiService.call(url, null, "get", token);
+                if (jsonObject != null) {
+                    if (jsonObject.get("error_code") == null) {
+                        tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
+                        return getBranches(merchant);
+                    }
+                    if (jsonObject.get("error_code").equals("0x0")) {
+                        return (ArrayList) jsonObject.get("data");
+                    }
                 }
-                apiResponse.setErrorCode((String) jsonObject.get("error_code"));
-                List<JSONObject> data = (ArrayList) jsonObject.get("data");
-                for (JSONObject json : data) {
-                    BranchDTO branchDTO = new BranchDTO();
-                    branchDTO.setUuid((String) json.get("id"));
-                    branchDTO.setBranchName((String) json.get("name"));
-                    branchDTO.setLogoUrl((String) json.get("logo_url"));
-                    branchDTOs.add(branchDTO);
-                }
-                apiResponse.setData(branchDTOs);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-        return apiResponse;
+        return null;
     }
 
-    public ApiResponse<MerchantDTO> getMerchantDesign(String token, String merchantType) {
+    public ApiResponse<MerchantDTO> getMerchantDesign(Merchant merchant) {
         ApiResponse apiResponse = new ApiResponse();
         try {
-            String url = rushHost + merchantDesignEndpoint.replace(":merchant_type", merchantType);
+            String endpoint;
+            if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
+                endpoint = sgMerchantDesignEndpoint;
+            } else {
+                endpoint = merchantDesignEndpoint;
+            }
+            String url = rushHost + endpoint.replace(":merchant_type", merchant.getMerchantType());
+            String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
             JSONObject jsonObject = apiService.call(url, new ArrayList<>(), "get", token);
             if (jsonObject != null) {
                 JSONObject dataJSON = (JSONObject) jsonObject.get("data");

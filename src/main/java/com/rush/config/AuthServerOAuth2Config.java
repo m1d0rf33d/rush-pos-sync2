@@ -70,7 +70,15 @@ public class AuthServerOAuth2Config extends AuthorizationServerConfigurerAdapter
                 .accessTokenValiditySeconds(0)
                 .authorizedGrantTypes(
                         "password","authorization_code", "refresh_token")
+                .scopes("trust")
+                .and()
+                .withClient("globeSg")
+                .secret("globeSgSecret")
+                .accessTokenValiditySeconds(0)
+                .authorizedGrantTypes(
+                        "password","authorization_code", "refresh_token")
                 .scopes("trust");
+
     }
 
     @Override
