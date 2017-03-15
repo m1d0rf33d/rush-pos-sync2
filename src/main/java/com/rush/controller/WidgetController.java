@@ -69,4 +69,7 @@ public class WidgetController {
     public JSONObject sendOfflineTransactions(@RequestBody JSONObject requestBody) {
         return memberService.sendOfflineTransacions(requestBody);
     }
+
+
+
 }
