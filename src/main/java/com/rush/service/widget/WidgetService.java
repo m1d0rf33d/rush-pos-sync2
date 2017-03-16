@@ -11,6 +11,7 @@ import com.rush.model.enums.MerchantStatus;
 import com.rush.model.enums.RushTokenType;
 import com.rush.repository.BranchRepository;
 import com.rush.repository.MerchantRepository;
+import com.rush.service.APIService;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,6 +36,10 @@ public class WidgetService {
     private String widgetHost;
     @Value("${sg.login.endpoint}")
     private String sgLoginEndpoint;
+    @Value("${sg.customer.titles.endpoint}")
+    private String customerTitlesEndpoint;
+    @Value("${rush.host}")
+    private String rushHost;
 
     @Autowired
     private TokenService tokenService;
@@ -44,6 +51,8 @@ public class WidgetService {
     private EmployeeService employeeService;
     @Autowired
     private BranchRepository branchRepository;
+    @Autowired
+    private APIService apiService;
 
     public JSONObject initializeWidget(String merchantKey) {
 
@@ -60,6 +69,7 @@ public class WidgetService {
             merchantJSON.put("with_vk", merchant.getWithVk());
             merchantJSON.put("merchant_key", merchant.getUniqueKey());
             merchantJSON.put("merchant_type", merchant.getMerchantType());
+            merchantJSON.put("merchant_class", merchant.getMerchantClassification().toString());
             data.put("merchant", merchantJSON);
         }
 
@@ -73,6 +83,28 @@ public class WidgetService {
         data.put("branches", branches);
         payload.put("data", data);
         return payload;
+    }
+
+    private List<JSONObject> getTitles(Merchant merchant, String employeeId) {
+
+        String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
+        String url = rushHost + customerTitlesEndpoint.replace(":employee_id", employeeId);
+        try {
+            JSONObject jsonObject = apiService.call(url, null, "get", token);
+            if (jsonObject != null) {
+                if (jsonObject.get("error_code") == null) {
+                    tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
+                    return getTitles(merchant, employeeId);
+                }
+                if (jsonObject.get("error_code").equals("0x0")) {
+                    return (ArrayList) jsonObject.get("data");
+                }
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public JSONObject loginEmployee(JSONObject requestBody) {
@@ -112,6 +144,11 @@ public class WidgetService {
                 ApiResponse<List<String>> accessResp = employeeService.getEmployeeAccess(employeeDTO.getId());
                 List<String> screenAccess = accessResp.getData();
                 data.put("access", screenAccess);
+
+                //titles
+                if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
+                    data.put("titles",  getTitles(merchant, employeeDTO.getId()));
+                }
             }
             payload.put("data", data);
         } else {

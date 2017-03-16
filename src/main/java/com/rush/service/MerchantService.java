@@ -2,9 +2,12 @@ package com.rush.service;
 
 import com.rush.model.*;
 import com.rush.model.dto.*;
+import com.rush.model.enums.MerchantClassification;
 import com.rush.model.enums.MerchantStatus;
+import com.rush.model.enums.RushTokenType;
 import com.rush.model.enums.Screen;
 import com.rush.repository.*;
+import com.rush.service.widget.TokenService;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.simple.JSONObject;
@@ -44,14 +47,22 @@ public class MerchantService {
     private BranchRepository branchRepository;
 
     @Value("${rush.host}")
-    private String baseUrl;
+    private String rushHost;
     @Value("${merchant.employees.endpoint}")
     private String merchantEmployeesEndpoint;
     @Value("${rush.auth.endpoint}")
     private String authorizationEndpoint;
     @Value("${branches.endpoint}")
     private String branchesEndpoint;
+    @Value("${sg.auth.endpoint}")
+    private String sgAuthEndpoint;
+    @Value("${sg.merchant.employees.endpoint}")
+    private String sgMerchantEmployeesEndpoint;
+    @Value("${sg.branches.endpoint}")
+    private String sgBranchesEndpoint;
 
+    @Autowired
+    private TokenService tokenService;
 
 
     public ApiResponse<List<MerchantDTO>> getMerchants() {
@@ -122,40 +133,34 @@ public class MerchantService {
         ApiResponse apiResponse = new ApiResponse();
         try {
             Merchant merchant = merchantRepository.findOne(id);
+                if (merchant != null) {
+                String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
 
-            String url = baseUrl + authorizationEndpoint;
-            List<NameValuePair> params = new ArrayList<>();
-            params.add(new BasicNameValuePair("app_key", merchant.getMerchantApiKey()));
-            params.add(new BasicNameValuePair("app_secret", merchant.getMerchantApiSecret()));
-
-            //GET Token
-            JSONObject tokenJSON  = apiService.call(url, params, "POST", null);
-
-            if (tokenJSON.get("message") != null) {
-                apiResponse.setResponseCode("500");
-                return apiResponse;
-            }
-
-            String token = (String) tokenJSON.get("token");
-            //GET Employees
-            url = baseUrl + merchantEmployeesEndpoint;
-            params = new ArrayList<>();
-            JSONObject jsonObj = apiService.call(url, params, "GET", token);
-            List<JSONObject> accounts = (ArrayList) jsonObj.get("data");
-            for (JSONObject account : accounts) {
-                String uuid = (String) account.get("uuid");
-                User user = userRepository.findOneByUuid(uuid);
-                if (user != null) {
-                    List<UserRole> userRoles = userRoleRepository.findByUser(user);
-                    userRoles.stream()
-                            .forEach(ur-> {
-                                account.put("roleId", ur.getRole().getId());
-                                account.put("role", ur.getRole().getName());
-                            });
+                String endpoint;
+                if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
+                    endpoint = sgMerchantEmployeesEndpoint;
+                } else {
+                    endpoint = merchantEmployeesEndpoint;
                 }
+                String url = rushHost + endpoint;
+                JSONObject jsonObj = apiService.call(url, null, "GET", token);
+                List<JSONObject> accounts = (ArrayList) jsonObj.get("data");
+                for (JSONObject account : accounts) {
+                    String uuid = (String) account.get("uuid");
+                    User user = userRepository.findOneByUuid(uuid);
+                    if (user != null) {
+                        List<UserRole> userRoles = userRoleRepository.findByUser(user);
+                        userRoles.stream()
+                                .forEach(ur-> {
+                                    account.put("roleId", ur.getRole().getId());
+                                    account.put("role", ur.getRole().getName());
+                                });
+                    }
+                }
+                apiResponse.setData(accounts);
+                apiResponse.setResponseCode("200");
             }
-            apiResponse.setData(accounts);
-            apiResponse.setResponseCode("200");
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -343,39 +348,34 @@ public class MerchantService {
         try {
             Merchant merchant = merchantRepository.findOne(merchantId);
 
-            String url = baseUrl + authorizationEndpoint;
-            List<NameValuePair> params = new ArrayList<>();
-            params.add(new BasicNameValuePair("app_key", merchant.getMerchantApiKey()));
-            params.add(new BasicNameValuePair("app_secret", merchant.getMerchantApiSecret()));
-
-            //GET Token
-            JSONObject tokenJSON = apiService.call(url, params, "POST", null);
-            if (tokenJSON.get("message") != null) {
-                apiResponse.setResponseCode("500");
-                return apiResponse;
-            }
-
-            String token = (String) tokenJSON.get("token");
-            //GET Employees
-            List<BranchDTO> branchDTOs = new ArrayList<>();
-            url = baseUrl + branchesEndpoint.replace(":merchant_type", merchant.getMerchantType().toString().toLowerCase());
-            params = new ArrayList<>();
-            JSONObject jsonObj  = apiService.call(url, params, "GET", token);
-            List<JSONObject> branches = (ArrayList) jsonObj.get("data");
-            for (JSONObject branch : branches) {
-                BranchDTO branchDTO = new BranchDTO();
-                branchDTO.setBranchName((String) branch.get("name"));
-                String uuid = (String) branch.get("id");
-                branchDTO.setUuid(uuid);
-                Branch b = branchRepository.findOneByUuid(uuid);
-                if (b != null) {
-                    branchDTO.setBranchId(b.getId());
-                    branchDTO.setWithVk(b.isWithVk());
+            if (merchant != null) {
+                String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
+                String endpoint;
+                if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
+                    endpoint = branchesEndpoint;
+                } else {
+                    endpoint = sgBranchesEndpoint;
                 }
-                branchDTOs.add(branchDTO);
+                //GET Employees
+                List<BranchDTO> branchDTOs = new ArrayList<>();
+                String url = rushHost + endpoint.replace(":merchant_type", merchant.getMerchantType().toString().toLowerCase());
+                JSONObject jsonObj  = apiService.call(url, null, "GET", token);
+                List<JSONObject> branches = (ArrayList) jsonObj.get("data");
+                for (JSONObject branch : branches) {
+                    BranchDTO branchDTO = new BranchDTO();
+                    branchDTO.setBranchName((String) branch.get("name"));
+                    String uuid = (String) branch.get("id");
+                    branchDTO.setUuid(uuid);
+                    Branch b = branchRepository.findOneByUuid(uuid);
+                    if (b != null) {
+                        branchDTO.setBranchId(b.getId());
+                        branchDTO.setWithVk(b.isWithVk());
+                    }
+                    branchDTOs.add(branchDTO);
+                }
+                apiResponse.setData(branchDTOs);
+                apiResponse.setResponseCode("200");
             }
-            apiResponse.setData(branchDTOs);
-            apiResponse.setResponseCode("200");
         } catch (IOException e) {
             e.printStackTrace();
         }

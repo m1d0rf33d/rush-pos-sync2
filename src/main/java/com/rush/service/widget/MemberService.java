@@ -72,6 +72,8 @@ public class MemberService {
     private String sgUnclaimedEndpoint;
     @Value("${sg.customer.points.endpoint}")
     private String sgCustomerPointsEndpoint;
+    @Value("${sg.customer.transactions.endpoint}")
+    private String sgCustomerTransactionsEndpoint;
 
     @Autowired
     private APIService apiService;
@@ -125,6 +127,8 @@ public class MemberService {
                         member.put("email", d.get("email"));
                         member.put("registration_date", d.get("registration_date"));
                         member.put("id", d.get("id"));
+                        member.put("account_number", d.get("account_number"));
+                        member.put("account_name", d.get("account_name"));
 
                         String points = getCurrentPoints((String) member.get("id"),(String) requestBody.get("employee_id"),merchant);
                         member.put("points", points);
@@ -218,7 +222,7 @@ public class MemberService {
             params.add(new BasicNameValuePair("account_number", (String) requestBody.get("account_number")));
         }
         if (requestBody.get("title_id") != null) {
-            params.add(new BasicNameValuePair("title_id", (String) requestBody.get("title_id")));
+            params.add(new BasicNameValuePair("title_id", ((Integer) requestBody.get("title_id")).toString()));
         }
 
 
@@ -591,7 +595,13 @@ public class MemberService {
 
     public List<JSONObject> getCustomerTransactions(Merchant merchant, String customerId) {
 
-        String url = rushHost + customerTransactionsEndpoint;
+        String endpoint;
+        if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
+            endpoint = sgCustomerTransactionsEndpoint;
+        } else {
+            endpoint = customerTransactionsEndpoint;
+        }
+        String url = rushHost + endpoint;
         url = url.replace(":customer_uuid", customerId);
         String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.CUSTOMER_APP, merchant.getMerchantClassification());
 
