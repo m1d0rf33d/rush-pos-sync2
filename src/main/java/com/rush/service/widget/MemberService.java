@@ -1,11 +1,6 @@
 package com.rush.service.widget;
 
-import com.rush.model.ApiResponse;
 import com.rush.model.Merchant;
-import com.rush.model.WidgetResponse;
-import com.rush.model.dto.LoginMemberDTO;
-import com.rush.model.dto.MemberDTO;
-import com.rush.model.dto.RewardDTO;
 import com.rush.model.enums.AppState;
 import com.rush.model.enums.MerchantClassification;
 import com.rush.model.enums.MerchantStatus;
@@ -14,17 +9,13 @@ import com.rush.repository.MerchantRepository;
 import com.rush.service.APIService;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.glassfish.jersey.jaxb.internal.XmlCollectionJaxbProvider;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,6 +65,12 @@ public class MemberService {
     private String sgCustomerPointsEndpoint;
     @Value("${sg.customer.transactions.endpoint}")
     private String sgCustomerTransactionsEndpoint;
+    @Value("${sg.customer.earn.endpoint}")
+    private String sgCustomerEarnEndpoint;
+    @Value("${sg.points.conversion.endpoint}")
+    private String sgPointsConversionEndpoint;
+    @Value(("${sg.account.summary.endpoint}"))
+    private String sgAccountSummaryEndpoint;
 
     @Autowired
     private APIService apiService;
@@ -158,6 +155,9 @@ public class MemberService {
                         }
                         if (appState.equals(AppState.MEMBER_INQUIRY.toString())) {
                             data.put("transactions", getCustomerTransactions(merchant, (String) member.get("id")));
+                        }
+                        if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
+                            data.put("account_points", getAccountPoints(merchant, (String) member.get("account_number"), employeeId));
                         }
 
                         payload.put("data", data);
@@ -266,12 +266,18 @@ public class MemberService {
         JSONObject payload = new JSONObject();
         try {
             String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
-            String url = rushHost + pointsConversionEndpoint;
+            String endpoint;
+            if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
+                endpoint = sgPointsConversionEndpoint;
+            } else {
+                endpoint = pointsConversionEndpoint;
+            }
+            String url = rushHost + endpoint;
             url = url.replace(":employee_id", employeeId).replace(":merchant_type", merchant.getMerchantType()).replace(":customer_id", customerId);
             JSONObject jsonObject = apiService.call(url, null, "get", token);
             if (jsonObject != null) {
 
-                if (jsonObject.get("error_code").equals("0x0")) {
+                if (jsonObject.get("error_code") == null) {
                     tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                     return getPointsRule(employeeId, customerId, merchant);
                 }
@@ -291,19 +297,25 @@ public class MemberService {
     public JSONObject earnPoints(JSONObject requestBody) {
         JSONObject payload = new JSONObject();
 
-        List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("uuid", (String) requestBody.get("customer_id")));
-        params.add(new BasicNameValuePair("or_no", (String) requestBody.get("or_no")));
-        params.add(new BasicNameValuePair("amount", (String) requestBody.get("amount")));
 
-        String url = rushHost + earnPointsEndpoint;
-        url = url.replace(":customer_uuid", (String) requestBody.get("customer_id"));
-        url = url.replace(":employee_id", (String) requestBody.get("employee_id"));
-        url = url.replace(":merchant_type", (String) requestBody.get("merchant_type"));
-        String merchantKey = (String) requestBody.get("merchant_key");
-
-        Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus(merchantKey, MerchantStatus.ACTIVE);
+        Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus((String) requestBody.get("merchant_key"), MerchantStatus.ACTIVE);
         if (merchant != null) {
+            String endpoint;
+            if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
+                endpoint = sgCustomerEarnEndpoint;
+            } else {
+                endpoint = earnPointsEndpoint;
+            }
+
+            String url = rushHost + endpoint;
+            url = url.replace(":customer_id", (String) requestBody.get("customer_id"));
+            url = url.replace(":employee_id", (String) requestBody.get("employee_id"));
+            url = url.replace(":merchant_type", (String) requestBody.get("merchant_type"));
+            String merchantKey = (String) requestBody.get("merchant_key");
+            List<NameValuePair> params = new ArrayList<>();
+            params.add(new BasicNameValuePair("uuid", (String) requestBody.get("customer_id")));
+            params.add(new BasicNameValuePair("or_no", (String) requestBody.get("or_no")));
+            params.add(new BasicNameValuePair("amount", (String) requestBody.get("amount")));
             String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
             try {
                 JSONObject jsonObject = apiService.call(url, params, "post", token);
@@ -326,6 +338,7 @@ public class MemberService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
         } else {
             payload.put("mesage", "Merchant not found");
         }
@@ -713,5 +726,30 @@ public class MemberService {
         payload.put("data", data);
 
         return payload;
+    }
+
+    private String getAccountPoints(Merchant merchant, String accountNumber, String employeeId) {
+        String endpoint = sgAccountSummaryEndpoint;
+        String url = rushHost + endpoint.replace(":employee_id", employeeId);
+        String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
+
+        try {
+            JSONObject jsonObject = apiService.call(url, null, "get", token);
+            if (jsonObject != null) {
+                if (jsonObject.get("error_code") == null) {
+                    tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
+                    return getAccountPoints(merchant, accountNumber, employeeId);
+                }
+                List<JSONObject> data = (ArrayList) jsonObject.get("data");
+                for (JSONObject account : data) {
+                    if (account.get("account_number").equals(accountNumber)) {
+                        return (String) account.get("points_available");
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
