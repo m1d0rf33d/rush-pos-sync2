@@ -136,10 +136,8 @@ public class WidgetService {
                 merchantJSON.put("background_url", merchantDTO.getBackgroundUrl());
                 merchantJSON.put("stamps_url", merchantDTO.getStampsUrl());
                 merchantJSON.put("gray_stamps_url", merchantDTO.getGrayStampsUrl());
-
-                JSONObject merch = new JSONObject();
-                merch.put("with_vk", merchant.getWithVk());
-                data.put("merchant", merch);
+                merchantJSON.put("with_vk", merchant.getWithVk());
+                data.put("merchant", merchantJSON);
                 //Screen access
                 ApiResponse<List<String>> accessResp = employeeService.getEmployeeAccess(employeeDTO.getId());
                 List<String> screenAccess = accessResp.getData();

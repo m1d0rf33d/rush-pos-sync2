@@ -70,5 +70,13 @@ public class WidgetController {
         return memberService.sendOfflineTransacions(requestBody);
     }
 
+    @RequestMapping(value = "/api/widget/earnStamp", method = RequestMethod.POST)
+    public JSONObject earnStamp(@RequestBody JSONObject requestBody) {
+        return memberService.earnStamp(requestBody);
+    }
 
+    @RequestMapping(value = "/api/widget/redeemStamp", method = RequestMethod.POST)
+    public JSONObject redeemStamp(@RequestBody JSONObject requestBody) {
+        return memberService.redeemStamp(requestBody);
+    }
 }
