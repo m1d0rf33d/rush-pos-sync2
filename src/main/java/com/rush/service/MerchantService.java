@@ -352,9 +352,9 @@ public class MerchantService {
                 String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                 String endpoint;
                 if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
-                    endpoint = branchesEndpoint;
-                } else {
                     endpoint = sgBranchesEndpoint;
+                } else {
+                    endpoint = branchesEndpoint;
                 }
                 //GET Employees
                 List<BranchDTO> branchDTOs = new ArrayList<>();

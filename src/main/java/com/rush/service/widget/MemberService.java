@@ -149,6 +149,7 @@ public class MemberService {
                                 JSONObject reward = (JSONObject)  redeem.get("reward");
                                 reward.put("redeem_id",  redeem.get("id"));
                                 reward.put("date", redeem.get("date"));
+                                reward.put("quantity", redeem.get("quantity"));
                                 rewards.add(reward);
                             }
                             data.put("rewards", rewards);
@@ -493,7 +494,7 @@ public class MemberService {
         Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus(merchantKey, MerchantStatus.ACTIVE);
         if (merchant != null) {
             String url = rushHost + payPointsEndpoint.replace(":merchant_type", merchantType);
-            url = url.replace(":customer_uuid", customerId);
+            url = url.replace(":customer_id", customerId);
 
             String token = tokenService.getRushtoken(merchantKey, RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
             try {
@@ -615,7 +616,7 @@ public class MemberService {
             endpoint = customerTransactionsEndpoint;
         }
         String url = rushHost + endpoint;
-        url = url.replace(":customer_uuid", customerId);
+        url = url.replace(":id", customerId);
         String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.CUSTOMER_APP, merchant.getMerchantClassification());
 
         try {
