@@ -79,4 +79,9 @@ public class WidgetController {
     public JSONObject redeemStamp(@RequestBody JSONObject requestBody) {
         return memberService.redeemStamp(requestBody);
     }
+
+    @RequestMapping(value = "/api/widget/issueStampReward", method = RequestMethod.POST)
+    public JSONObject issueStampReward(@RequestBody JSONObject requestBody) {
+        return memberService.issueStampReward(requestBody);
+    }
 }
