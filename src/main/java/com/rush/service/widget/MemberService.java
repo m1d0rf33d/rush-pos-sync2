@@ -809,12 +809,15 @@ public class MemberService {
 
         try {
             JSONObject jsonObject = apiService.call(url, null, "get", token);
-            if (jsonObject.get("error_code") == null) {
-                tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
-                return getCustomerCard(merchant, employeeId, customerId);
+            if (jsonObject != null) {
+                if (jsonObject.get("error_code") == null) {
+                    tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
+                    return getCustomerCard(merchant, employeeId, customerId);
+                }
+
+                return (JSONObject) jsonObject.get("data");
             }
 
-            return (JSONObject) jsonObject.get("data");
         } catch (IOException e) {
             e.printStackTrace();
         }

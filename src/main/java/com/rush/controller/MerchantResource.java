@@ -79,7 +79,6 @@ public class MerchantResource {
         return merchantService.getBranches(merchantId);
     }
 
-
     @RequestMapping(value = "/branch", method = RequestMethod.POST)
     public ApiResponse updateBranch(@RequestBody BranchDTO branchDTO) {
         return merchantService.updateBranch(branchDTO);
