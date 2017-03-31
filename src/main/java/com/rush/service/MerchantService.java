@@ -144,6 +144,11 @@ public class MerchantService {
                 }
                 String url = rushHost + endpoint;
                 JSONObject jsonObj = apiService.call(url, null, "GET", token);
+                if (jsonObj == null) {
+                    tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
+                    return getMerchantAccounts(id);
+                }
+
                 List<JSONObject> accounts = (ArrayList) jsonObj.get("data");
                 for (JSONObject account : accounts) {
                     String uuid = (String) account.get("uuid");
@@ -360,6 +365,11 @@ public class MerchantService {
                 List<BranchDTO> branchDTOs = new ArrayList<>();
                 String url = rushHost + endpoint.replace(":merchant_type", merchant.getMerchantType().toString().toLowerCase());
                 JSONObject jsonObj  = apiService.call(url, null, "GET", token);
+                if (jsonObj == null) {
+                    tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
+                    return getBranches(merchantId);
+                }
+
                 List<JSONObject> branches = (ArrayList) jsonObj.get("data");
                 for (JSONObject branch : branches) {
                     BranchDTO branchDTO = new BranchDTO();
