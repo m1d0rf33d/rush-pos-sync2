@@ -144,7 +144,7 @@ public class MerchantService {
                 }
                 String url = rushHost + endpoint;
                 JSONObject jsonObj = apiService.call(url, null, "GET", token);
-                if (jsonObj == null) {
+                if (jsonObj.get("error_code") == null) {
                     tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                     return getMerchantAccounts(id);
                 }
@@ -365,7 +365,7 @@ public class MerchantService {
                 List<BranchDTO> branchDTOs = new ArrayList<>();
                 String url = rushHost + endpoint.replace(":merchant_type", merchant.getMerchantType().toString().toLowerCase());
                 JSONObject jsonObj  = apiService.call(url, null, "GET", token);
-                if (jsonObj == null) {
+                if (jsonObj.get("error_code") == null) {
                     tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                     return getBranches(merchantId);
                 }
