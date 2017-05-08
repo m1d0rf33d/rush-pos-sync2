@@ -339,6 +339,24 @@ public class MemberService {
             params.add(new BasicNameValuePair("uuid", (String) requestBody.get("customer_id")));
             params.add(new BasicNameValuePair("or_no", (String) requestBody.get("or_no")));
             params.add(new BasicNameValuePair("amount", (String) requestBody.get("amount")));
+
+            //validate points
+            JSONObject pointsRule = getPointsRule((String) requestBody.get("employee_id"), (String) requestBody.get("customer_id"), merchant);
+            Long earningPeso = (Long) pointsRule.get("earning_peso");
+            String amountStr = (String) requestBody.get("amount");
+            Long amt;
+            try {
+                amt = Long.parseLong(amountStr);
+            } catch (NumberFormatException e) {
+                Double d = Double.parseDouble(amountStr);
+                amt = d.longValue();
+            }
+            if (earningPeso > amt) {
+                payload.put("error_code", "0x1");
+                payload.put("message", "Sorry! Amount entered is below the minimum purchase of P" + earningPeso);
+                return payload;
+            }
+
             String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
             try {
                 JSONObject jsonObject = apiService.call(url, params, "post", token);
@@ -788,8 +806,9 @@ public class MemberService {
                 }
                 List<JSONObject> data = (ArrayList) jsonObject.get("data");
                 for (JSONObject account : data) {
-                    if (account.get("account_number").equals(accountNumber)) {
-                        return (String) account.get("points_available");
+                    if (account.get("armstrong_id").equals(accountNumber)) {
+                        Long i = (Long) account.get("points_available");
+                        return i.toString();
                     }
                 }
             }
