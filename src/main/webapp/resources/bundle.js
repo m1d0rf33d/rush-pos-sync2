@@ -14235,7 +14235,7 @@ var BranchComponent = function (_Component) {
         value: function getMerchants() {
             var tref = this;
 
-            _axios2.default.get('/rush/merchant', {
+            _axios2.default.get('/rush-pos-sync/merchant', {
                 headers: {
                     'Content-type': 'application/json'
                 }
@@ -14253,7 +14253,7 @@ var BranchComponent = function (_Component) {
         value: function getBranches() {
             var tref = this;
             var merchantId = _reactDom2.default.findDOMNode(this.refs.merchant).value;
-            _axios2.default.get('/rush/branch?merchant=' + merchantId, {
+            _axios2.default.get('/rush-pos-sync/branch?merchant=' + merchantId, {
                 headers: {
                     'Content-type': 'application/json'
                 }
@@ -14309,9 +14309,10 @@ var BranchComponent = function (_Component) {
             console.log(row);
             this.setState({
                 branch: {
-                    name: row.name,
+                    branchName: row.branchName,
                     withVk: row.withVk,
-                    id: row.id
+                    branchId: row.branchId,
+                    uuid: row.uuid
                 }
             });
             this.openModal();
@@ -14333,10 +14334,10 @@ var BranchComponent = function (_Component) {
             var withVk = _reactDom2.default.findDOMNode(this.refs.withVk).value;
             this.setState({
                 branch: {
-                    name: branch,
+                    branchName: branch,
                     withVk: withVk,
-                    id: this.state.branch.id,
-                    merchantId: tref.state.merchant.id
+                    branchId: this.state.branch.branchId,
+                    uuid: this.state.branch.uuid
                 }
             });
         }
@@ -14344,15 +14345,15 @@ var BranchComponent = function (_Component) {
         key: 'updateBranch',
         value: function updateBranch() {
             var data = {
-                'name': this.state.branch.name,
+                'branchName': this.state.branch.branchName,
                 'withVk': this.state.branch.withVk == 'on' ? true : false,
-                'id': this.state.branch.id,
-                'merchantId': this.state.branch.merchantId
+                'branchId': this.state.branch.branchId,
+                'uuid': this.state.branch.uuid
             };
 
             var postConfig = {
                 method: 'POST',
-                url: '/rush/branch',
+                url: '/rush-pos-sync/branch',
                 data: JSON.stringify(data),
                 headers: {
                     'Content-Type': 'application/json'
@@ -14402,11 +14403,11 @@ var BranchComponent = function (_Component) {
                             { className: 'row' },
                             _react2.default.createElement(
                                 'label',
-                                null,
-                                ' UPDATE BRANCH '
+                                { className: 'prim-label' },
+                                ' Branch Details '
                             )
                         ),
-                        _react2.default.createElement('br', null),
+                        _react2.default.createElement('hr', null),
                         _react2.default.createElement(
                             'div',
                             { className: 'row' },
@@ -14422,7 +14423,7 @@ var BranchComponent = function (_Component) {
                             _react2.default.createElement(
                                 'div',
                                 { className: 'col-xs-6' },
-                                _react2.default.createElement('input', { onChange: this.updateValue.bind(this), value: this.state.branch.name, ref: 'name', id: 'name-input', type: 'text' })
+                                _react2.default.createElement('input', { disabled: true, onChange: this.updateValue.bind(this), value: this.state.branch.branchName, ref: 'name', id: 'name-input', type: 'text' })
                             )
                         ),
                         _react2.default.createElement('br', null),
@@ -14457,7 +14458,7 @@ var BranchComponent = function (_Component) {
                                 )
                             )
                         ),
-                        _react2.default.createElement('br', null),
+                        _react2.default.createElement('hr', null),
                         _react2.default.createElement(
                             'div',
                             { className: 'row' },
@@ -14488,20 +14489,21 @@ var BranchComponent = function (_Component) {
                     'div',
                     { className: 'row' },
                     _react2.default.createElement(
+                        'label',
+                        { className: 'prim-label' },
+                        'BRANCH SETTINGS'
+                    )
+                ),
+                _react2.default.createElement('hr', null),
+                _react2.default.createElement(
+                    'div',
+                    { className: 'row' },
+                    _react2.default.createElement(
                         'div',
                         { className: 'col-xs-3' },
                         _react2.default.createElement(
-                            'label',
-                            { className: 'h1' },
-                            'Search Branch:'
-                        )
-                    ),
-                    _react2.default.createElement(
-                        'div',
-                        { className: 'col-xs-2' },
-                        _react2.default.createElement(
                             'select',
-                            { ref: 'merchant', defaultValue: '', required: true },
+                            { className: 'prim-select', ref: 'merchant', defaultValue: '', required: true },
                             this.state.merchants.map(function (merchant) {
                                 return _react2.default.createElement(
                                     'option',
@@ -14517,25 +14519,17 @@ var BranchComponent = function (_Component) {
                         { className: 'col-xs-2' },
                         _react2.default.createElement(
                             'button',
-                            { className: 'btn btn-primary merchant-add-btn', onClick: this.getBranches.bind(this) },
+                            { className: 'btn btn-primary branch-search prim-btn', onClick: this.getBranches.bind(this) },
                             'Search'
-                        )
-                    ),
-                    _react2.default.createElement(
-                        'div',
-                        { className: 'col-xs-2' },
-                        _react2.default.createElement(
-                            'button',
-                            { className: 'btn btn-primary merchant-add-btn', onClick: this.addBranch.bind(this) },
-                            'Add'
                         )
                     )
                 ),
+                _react2.default.createElement('br', null),
                 _react2.default.createElement(
                     'div',
                     null,
                     _react2.default.createElement(_reactDataGrid2.default, {
-                        columns: [{ resizable: true, key: 'name', name: 'Branch Name' }, { resizable: true, key: 'withVk', name: 'Virtual Keyboard' }],
+                        columns: [{ resizable: true, key: 'branchName', name: 'Branch Name' }, { resizable: true, key: 'withVk', name: 'Virtual Keyboard' }],
                         rowGetter: function rowGetter(rowNumber) {
                             return _this2.state.branches[rowNumber];
                         },
@@ -14866,11 +14860,11 @@ var MerchantComponent = function (_Component) {
                         { className: "row" },
                         _react2.default.createElement(
                             "label",
-                            null,
-                            " CREATE MERCHANT "
+                            { className: "prim-label" },
+                            " Merchant Details "
                         )
                     ),
-                    _react2.default.createElement("br", null),
+                    _react2.default.createElement("hr", null),
                     _react2.default.createElement(
                         "div",
                         { className: "row" },
@@ -14996,6 +14990,7 @@ var MerchantComponent = function (_Component) {
                         )
                     ),
                     _react2.default.createElement("br", null),
+                    _react2.default.createElement("hr", null),
                     _react2.default.createElement(
                         "div",
                         { className: "row" },
@@ -15025,21 +15020,22 @@ var MerchantComponent = function (_Component) {
                     "div",
                     { className: "row" },
                     _react2.default.createElement(
-                        "div",
-                        { className: "col-xs-3" },
-                        _react2.default.createElement(
-                            "label",
-                            { className: "h1" },
-                            "EXISTING MERCHANTS"
-                        )
-                    ),
+                        "label",
+                        { className: "prim-label" },
+                        "MERCHANT SETTINGS"
+                    )
+                ),
+                _react2.default.createElement("hr", null),
+                _react2.default.createElement(
+                    "div",
+                    { className: "row" },
                     _react2.default.createElement(
                         "div",
                         { className: "col-xs-2" },
                         _react2.default.createElement(
                             "button",
-                            { className: "btn btn-primary merchant-add-btn", onClick: this.openModal },
-                            "ADD"
+                            { className: "btn btn-primary merchant-add-btn prim-btn", onClick: this.openModal },
+                            "Add"
                         )
                     )
                 ),

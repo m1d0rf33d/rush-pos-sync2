@@ -38,7 +38,7 @@ class BranchComponent extends Component {
     getMerchants() {
         let tref = this;
 
-        axios.get('/rush/merchant', {
+        axios.get('/rush-pos-sync/merchant', {
             headers: {
                 'Content-type': 'application/json'
             }
@@ -55,7 +55,7 @@ class BranchComponent extends Component {
     getBranches() {
         let tref = this;
         let merchantId = ReactDOM.findDOMNode(this.refs.merchant).value;
-        axios.get('/rush/branch?merchant=' + merchantId, {
+        axios.get('/rush-pos-sync/branch?merchant=' + merchantId, {
             headers: {
                 'Content-type': 'application/json'
             }
@@ -88,9 +88,10 @@ class BranchComponent extends Component {
         console.log(row);
         this.setState({
             branch: {
-                name: row.name,
+                branchName: row.branchName,
                 withVk: row.withVk,
-                id: row.id
+                branchId: row.branchId,
+                uuid: row.uuid
             }
         })
         this.openModal();
@@ -110,26 +111,26 @@ class BranchComponent extends Component {
         let withVk = ReactDOM.findDOMNode(this.refs.withVk).value;
         this.setState({
             branch: {
-                name: branch,
+                branchName: branch,
                 withVk: withVk,
-                id: this.state.branch.id,
-                merchantId: tref.state.merchant.id
+                branchId: this.state.branch.branchId,
+                uuid: this.state.branch.uuid
             }
         })
     }
 
     updateBranch() {
         let data =  {
-            'name': this.state.branch.name,
+            'branchName': this.state.branch.branchName,
             'withVk': this.state.branch.withVk == 'on' ? true : false,
-            'id': this.state.branch.id,
-            'merchantId': this.state.branch.merchantId
+            'branchId': this.state.branch.branchId,
+            'uuid': this.state.branch.uuid
         }
 
 
         let postConfig = {
             method: 'POST',
-            url: '/rush/branch',
+            url: '/rush-pos-sync/branch',
             data: JSON.stringify(data),
             headers: {
                 'Content-Type': 'application/json'
@@ -169,15 +170,15 @@ class BranchComponent extends Component {
 
                     <div className="branch-modal">
                         <div className="row">
-                            <label > UPDATE BRANCH </label>
+                            <label className="prim-label" > Branch Details </label>
                         </div>
-                        <br/>
+                        <hr/>
                         <div className="row">
                             <div className="col-xs-6">
                                 <label>Name:</label>
                             </div>
                             <div className="col-xs-6">
-                                <input onChange={this.updateValue.bind(this)} value={this.state.branch.name} ref="name" id="name-input"  type="text"/>
+                                <input disabled onChange={this.updateValue.bind(this)} value={this.state.branch.branchName} ref="name" id="name-input"  type="text"/>
                             </div>
                         </div><br/>
                         <div className="row">
@@ -190,7 +191,7 @@ class BranchComponent extends Component {
                                     <option value="off">OFF</option>
                                 </select>
                             </div>
-                        </div><br/>
+                        </div><hr/>
 
 
 
@@ -208,10 +209,14 @@ class BranchComponent extends Component {
                         </div>
                     </div>
                 </Modal>
+
             <div className="row">
-                <div className="col-xs-3"><label className="h1">Search Branch:</label></div>
-                <div className="col-xs-2">
-                    <select ref="merchant" defaultValue="" required>
+                <label className="prim-label">BRANCH SETTINGS</label>
+            </div>
+            <hr/>
+            <div className="row">
+                <div className="col-xs-3">
+                    <select className="prim-select" ref="merchant" defaultValue="" required>
                         {
                             this.state.merchants.map(function(merchant) {
                                 return <option key={merchant.id}
@@ -221,15 +226,13 @@ class BranchComponent extends Component {
                     </select>
                 </div>
                 <div className="col-xs-2">
-                    <button className="btn btn-primary merchant-add-btn" onClick={this.getBranches.bind(this)}>Search</button>
-                </div>
-                <div className="col-xs-2">
-                    <button className="btn btn-primary merchant-add-btn" onClick={this.addBranch.bind(this)}>Add</button>
+                    <button className="btn btn-primary branch-search prim-btn" onClick={this.getBranches.bind(this)}>Search</button>
                 </div>
             </div>
+            <br/>
             <div>
                 <ReactDataGrid
-                    columns={[{ resizable: true,key: 'name', name: 'Branch Name' },
+                    columns={[{ resizable: true,key: 'branchName', name: 'Branch Name' },
                     { resizable: true, key: 'withVk', name: 'Virtual Keyboard' }]}
                     rowGetter={rowNumber =>  this.state.branches[rowNumber] }
                     rowsCount={this.state.branches.length}

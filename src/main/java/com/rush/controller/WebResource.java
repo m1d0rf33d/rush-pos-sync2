@@ -1,16 +1,14 @@
 package com.rush.controller;
 
 import com.rush.model.ApiResponse;
+import com.rush.model.dto.BranchDTO;
 import com.rush.model.dto.MerchantDTO;
 import com.rush.model.enums.MerchantStatus;
 import com.rush.service.MerchantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,4 +38,13 @@ public class WebResource {
         return new ResponseEntity<>(Arrays.asList(MerchantStatus.values()), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/branch", method = RequestMethod.GET)
+    public ResponseEntity<List<BranchDTO>> getBranchesByMerchant(@RequestParam(value = "merchant") Long merchantId) {
+        return new ResponseEntity<>(merchantService.getBranches(merchantId).getData(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/branch", method = RequestMethod.POST)
+    public ResponseEntity<BranchDTO> postBranch(@RequestBody BranchDTO branchDTO) {
+        return new ResponseEntity<>(merchantService.updateBranch(branchDTO).getData(), HttpStatus.OK );
+    }
 }

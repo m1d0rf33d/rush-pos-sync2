@@ -348,7 +348,7 @@ public class MerchantService {
     }
 
 
-    public ApiResponse getBranches(Long merchantId) {
+    public ApiResponse<List<BranchDTO>> getBranches(Long merchantId) {
 
         ApiResponse apiResponse = new ApiResponse();
         try {
@@ -393,7 +393,7 @@ public class MerchantService {
         return apiResponse;
     }
 
-    public ApiResponse updateBranch(BranchDTO branchDTO) {
+    public ApiResponse<BranchDTO> updateBranch(BranchDTO branchDTO) {
 
         ApiResponse apiResponse = new ApiResponse();
         Branch branch;
@@ -407,7 +407,7 @@ public class MerchantService {
             branch.setWithVk(branchDTO.getWithVk());
             branchRepository.save(branch);
         }
-
+        apiResponse.setData(branchDTO);
         apiResponse.setResponseCode("200");
         return apiResponse;
     }

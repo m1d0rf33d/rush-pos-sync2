@@ -75,3 +75,29 @@ li {
 	height: 200px;
 	min-height: 200px;
 }
+
+.prim-btn {
+	width: 120px;
+	min-width: 120px;
+	height: 30px;
+	min-height:30px;
+}
+
+.prim-select {
+	width: 200px;
+	min-width:200px;
+	height: 30px;
+	min-height:30px;
+}
+
+.branch-search {
+	margin-top: 0;
+}
+
+
+
+.prim-label {
+	margin-left: 20px;
+	display: inline-block;
+	font-size: 20px;
+}

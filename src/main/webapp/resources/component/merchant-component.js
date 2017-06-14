@@ -206,9 +206,9 @@ class MerchantComponent extends Component {
                 >
 
                     <div className="row">
-                        <label > CREATE MERCHANT </label>
+                        <label className="prim-label"> Merchant Details </label>
                     </div>
-                    <br/>
+                    <hr/>
                     <div className="row">
                         <div className="col-xs-6">
                             <label>Name:</label>
@@ -266,7 +266,7 @@ class MerchantComponent extends Component {
                         </div>
                     </div><br/>
 
-
+                    <hr/>
                     <div className="row">
                         <div className="col-xs-3">
                         </div>
@@ -280,11 +280,13 @@ class MerchantComponent extends Component {
                         </div>
                     </div>
                 </Modal>
-
                 <div className="row">
-                    <div className="col-xs-3"><label className="h1">EXISTING MERCHANTS</label></div>
+                    <label className="prim-label">MERCHANT SETTINGS</label>
+                 </div>
+                <hr/>
+                <div className="row">
                     <div className="col-xs-2">
-                        <button className="btn btn-primary merchant-add-btn" onClick={this.openModal}>ADD</button>
+                        <button className="btn btn-primary merchant-add-btn prim-btn" onClick={this.openModal}>Add</button>
                     </div>
                 </div>
                 <br/>
