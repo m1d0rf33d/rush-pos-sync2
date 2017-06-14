@@ -14198,7 +14198,7 @@ var AccountComponent = function (_Component) {
                     _react2.default.createElement(
                         'label',
                         { className: 'prim-label' },
-                        'Accounts'
+                        'ACCOUNTS SETTINGS'
                     )
                 ),
                 _react2.default.createElement('hr', null),
@@ -15376,7 +15376,9 @@ var SidebarComponent = function (_Component) {
                         ),
                         _react2.default.createElement(
                             'li',
-                            null,
+                            { className: this.props.activeButton == 'role-li' ? 'active' : 'inactive', onClick: function onClick() {
+                                    return _this2.props.updateActiveButton('role-li');
+                                } },
                             _react2.default.createElement(
                                 _reactRouterDom.Link,
                                 { to: '/role' },
@@ -15458,6 +15460,10 @@ var _accountComponent = __webpack_require__(128);
 
 var _accountComponent2 = _interopRequireDefault(_accountComponent);
 
+var _roleComponent = __webpack_require__(313);
+
+var _roleComponent2 = _interopRequireDefault(_roleComponent);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -15508,7 +15514,8 @@ var HomeComponent = function (_Component) {
 										_react2.default.createElement(_reactRouterDom.Route, { exact: true, path: "/", component: _helloComponent2.default }),
 										_react2.default.createElement(_reactRouterDom.Route, { path: "/merchant", component: _merchantComponent2.default }),
 										_react2.default.createElement(_reactRouterDom.Route, { path: "/branch", component: _branchComponent2.default }),
-										_react2.default.createElement(_reactRouterDom.Route, { path: "/account", component: _accountComponent2.default })
+										_react2.default.createElement(_reactRouterDom.Route, { path: "/account", component: _accountComponent2.default }),
+										_react2.default.createElement(_reactRouterDom.Route, { path: "/role", component: _roleComponent2.default })
 									)
 								)
 							)
@@ -46872,6 +46879,294 @@ exports.default = function () {
         thumbnail: "http://i.imgur.com/4EMtxHB.png"
     }];
 };
+
+/***/ }),
+/* 313 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(4);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDataGrid = __webpack_require__(49);
+
+var _reactDataGrid2 = _interopRequireDefault(_reactDataGrid);
+
+var _axios = __webpack_require__(42);
+
+var _axios2 = _interopRequireDefault(_axios);
+
+var _reactDom = __webpack_require__(17);
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _reactModal = __webpack_require__(65);
+
+var _reactModal2 = _interopRequireDefault(_reactModal);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var customStyles = {
+    content: {
+        top: '50%',
+        left: '50%',
+        right: 'auto',
+        bottom: 'auto',
+        marginRight: '-50%',
+        transform: 'translate(-50%, -50%)',
+        borderRadius: '0px',
+        background: '#fff',
+        border: '1px solid black'
+
+    }
+};
+
+var columns = [{ resizable: true, key: 'name', name: 'ROLE' }];
+
+var RoleComponent = function (_Component) {
+    _inherits(RoleComponent, _Component);
+
+    function RoleComponent() {
+        _classCallCheck(this, RoleComponent);
+
+        var _this = _possibleConstructorReturn(this, (RoleComponent.__proto__ || Object.getPrototypeOf(RoleComponent)).call(this));
+
+        _this.state = {
+            roles: [],
+            merchants: [],
+            role: {
+                'screens': []
+            }
+        };
+        return _this;
+    }
+
+    _createClass(RoleComponent, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            this.getMerchants();
+        }
+    }, {
+        key: 'getMerchants',
+        value: function getMerchants() {
+            var tref = this;
+
+            _axios2.default.get('/rush-pos-sync/merchant', {
+                headers: {
+                    'Content-type': 'application/json'
+                }
+            }).then(function (resp) {
+
+                tref.setState({
+                    merchants: resp.data
+                });
+            }).catch(function (error) {
+                alert(error);
+            });
+        }
+    }, {
+        key: 'getRoles',
+        value: function getRoles() {
+            var tref = this;
+            var merchantId = _reactDom2.default.findDOMNode(this.refs.merchant).value;
+            _axios2.default.get('/rush-pos-sync/role?merchant=' + merchantId, {
+                headers: {
+                    'Content-type': 'application/json'
+                }
+            }).then(function (resp) {
+                console.log(resp.data);
+                tref.setState({
+                    roles: resp.data
+                });
+            }).catch(function (error) {
+                alert(error);
+            });
+        }
+    }, {
+        key: 'onRowClick',
+        value: function onRowClick(rowIdx, row) {
+            console.log(row);
+            this.setState({
+                updateModalIsOpen: true,
+                role: {
+                    screens: row.screens
+                }
+            });
+        }
+    }, {
+        key: 'postRole',
+        value: function postRole() {}
+    }, {
+        key: 'closeUpdateModal',
+        value: function closeUpdateModal() {
+            this.setState({
+                updateModalIsOpen: false
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            var _this2 = this;
+
+            return _react2.default.createElement(
+                'div',
+                null,
+                _react2.default.createElement(
+                    _reactModal2.default,
+                    {
+                        isOpen: this.state.updateModalIsOpen,
+                        onRequestClose: this.closeUpdateModal.bind(this),
+                        style: customStyles,
+                        contentLabel: 'Example Modal'
+                    },
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'role-modal' },
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'row' },
+                            _react2.default.createElement(
+                                'label',
+                                null,
+                                'Role Details'
+                            )
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'row' },
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'col-xs-6' },
+                                'Name'
+                            ),
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'col-xs-6' },
+                                _react2.default.createElement('input', { type: 'text', ref: 'role' })
+                            )
+                        ),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'row' },
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'col-xs-6' },
+                                'Access'
+                            ),
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'col-xs-6' },
+                                this.state.role.screens.map(function (screen) {
+                                    return _react2.default.createElement(
+                                        'div',
+                                        { className: 'row' },
+                                        _react2.default.createElement(
+                                            'div',
+                                            { className: 'col-xs-6' },
+                                            screen.name
+                                        ),
+                                        _react2.default.createElement(
+                                            'div',
+                                            { className: 'col-xs-6' },
+                                            _react2.default.createElement('input', { type: 'checkbox', checked: screen.checked })
+                                        )
+                                    );
+                                })
+                            )
+                        )
+                    )
+                ),
+                _react2.default.createElement(
+                    'div',
+                    { className: 'row' },
+                    _react2.default.createElement(
+                        'label',
+                        { className: 'prim-label' },
+                        'ROLE SETTINGS'
+                    )
+                ),
+                _react2.default.createElement('hr', null),
+                _react2.default.createElement(
+                    'div',
+                    { className: 'row' },
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'col-xs-3' },
+                        _react2.default.createElement(
+                            'select',
+                            { className: 'prim-select', ref: 'merchant', defaultValue: '', required: true },
+                            _react2.default.createElement(
+                                'option',
+                                { value: '-1' },
+                                '--select--'
+                            ),
+                            this.state.merchants.map(function (merchant) {
+                                return _react2.default.createElement(
+                                    'option',
+                                    { key: merchant.id,
+                                        value: merchant.id },
+                                    merchant.name
+                                );
+                            })
+                        )
+                    ),
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'col-xs-2' },
+                        _react2.default.createElement(
+                            'button',
+                            { className: 'btn btn-primary prim-btn', onClick: this.getRoles.bind(this) },
+                            'Search'
+                        )
+                    ),
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'col-xs-2' },
+                        _react2.default.createElement(
+                            'button',
+                            { className: 'btn btn-primary prim-btn', onClick: this.postRole.bind(this) },
+                            'Add'
+                        )
+                    )
+                ),
+                _react2.default.createElement('br', null),
+                _react2.default.createElement(
+                    'div',
+                    { className: 'row' },
+                    _react2.default.createElement(_reactDataGrid2.default, {
+                        columns: columns,
+                        rowGetter: function rowGetter(rowNumber) {
+                            return _this2.state.roles[rowNumber];
+                        },
+                        rowsCount: this.state.roles.length,
+                        minHeight: 300,
+                        minWidth: 900,
+                        onRowClick: this.onRowClick.bind(this)
+                    })
+                )
+            );
+        }
+    }]);
+
+    return RoleComponent;
+}(_react.Component);
+
+exports.default = RoleComponent;
 
 /***/ })
 /******/ ]);

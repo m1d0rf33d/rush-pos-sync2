@@ -7,6 +7,7 @@ import HelloComponent  from './component/hello-component'
 import MerchantComponent from './component/merchant-component'
 import BranchComponent from './component/branch-component'
 import AccountComponent from './component/account-component'
+import RoleComponent from './component/role-component'
 
 class HomeComponent extends Component {
 
@@ -30,6 +31,7 @@ class HomeComponent extends Component {
 										<Route path="/merchant" component={MerchantComponent}/>
 										<Route path="/branch" component={BranchComponent}/>
 										<Route path="/account" component={AccountComponent}/>
+										<Route path="/role" component={RoleComponent}/>
 									</Switch>
 								</div>
 

@@ -238,7 +238,7 @@ class AccountComponent extends Component {
 
                 </Modal>
                 <div className="row">
-                    <label className="prim-label">Accounts</label>
+                    <label className="prim-label">ACCOUNTS SETTINGS</label>
                 </div>
                 <hr/>
                 <div className="row">

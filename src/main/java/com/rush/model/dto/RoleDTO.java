@@ -11,6 +11,15 @@ public class RoleDTO {
     private Long roleId;
     private String name;
     private List<ScreenDTO> screens;
+    private String access;
+
+    public String getAccess() {
+        return access;
+    }
+
+    public void setAccess(String access) {
+        this.access = access;
+    }
 
     public Long getMerchantId() {
         return merchantId;

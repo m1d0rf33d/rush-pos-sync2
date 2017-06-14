@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -272,7 +273,24 @@ public class MerchantService {
                     roleDTO.setName(role.getName());
                     roleDTO.setRoleId(role.getId());
                     roleDTO.setMerchantId(role.getMerchant().getId());
+
+
+                    List<ScreenDTO> screenDTOs = new ArrayList<ScreenDTO>();
+                    List<MerchantScreen> merchantScreens = merchantScreenRepository.findByRole(role);
+                    Arrays.asList(Screen.values()).forEach(screen -> {
+                        ScreenDTO screenDTO = new ScreenDTO();
+                        screenDTO.setName(screen.toString());
+                        screenDTO.setChecked(false);
+                        merchantScreens.forEach(ms -> {
+                            if (ms.getScreen().toString().equals(screenDTO.getName())) {
+                                screenDTO.setChecked(true);
+                            }
+                        });
+                        screenDTOs.add(screenDTO);
+                    });
+                    roleDTO.setScreens(screenDTOs);
                     roleDTOs.add(roleDTO);
+
                 });
         ApiResponse apiResponse = new ApiResponse();
         apiResponse.setResponseCode("200");
@@ -410,5 +428,34 @@ public class MerchantService {
         apiResponse.setData(branchDTO);
         apiResponse.setResponseCode("200");
         return apiResponse;
+    }
+
+
+    public RoleDTO postRole(RoleDTO roleDTO) {
+        Merchant merchant = merchantRepository.findOne(roleDTO.getMerchantId());
+        Role role = new Role();
+        if (roleDTO.getRoleId() != null) {
+            role = roleRepository.findOne(roleDTO.getRoleId());
+        }
+        role.setName(roleDTO.getName());
+        role = roleRepository.save(role);
+        final Role r = role;
+        //clear access
+        List<MerchantScreen> screens = merchantScreenRepository.findByRole(role);
+        screens.forEach(sc -> {
+            merchantScreenRepository.delete(sc);
+        });
+
+        roleDTO.getScreens().forEach( sc -> {
+
+            if (sc.getChecked()) {
+                MerchantScreen merchantScreen = new MerchantScreen();
+                merchantScreen.setMerchant(merchant);
+                merchantScreen.setScreen(Screen.valueOf(sc.getName()));
+                merchantScreen.setRole(r);
+                merchantScreenRepository.save(merchantScreen);
+            }
+        });
+        return roleDTO;
     }
 }

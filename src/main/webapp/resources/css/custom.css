@@ -108,3 +108,10 @@ li {
 	height: 200px;
 	min-height:200px;
 }
+
+.role-modal {
+	width: 600px;
+	min-width:400px;
+	height:400px;
+	min-height:400px;
+}

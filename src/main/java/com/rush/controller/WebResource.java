@@ -6,6 +6,7 @@ import com.rush.model.dto.MerchantDTO;
 import com.rush.model.dto.RoleDTO;
 import com.rush.model.dto.UserDTO;
 import com.rush.model.enums.MerchantStatus;
+import com.rush.model.enums.Screen;
 import com.rush.service.MerchantService;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,5 +64,15 @@ public class WebResource {
     @RequestMapping(value = "/role", method = RequestMethod.GET)
     public ResponseEntity<List<RoleDTO>> getRoles(@RequestParam(value = "merchant") Long merchantId) {
         return new ResponseEntity<>(merchantService.getRoles(merchantId).getData(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/role", method = RequestMethod.POST)
+    public ResponseEntity<RoleDTO> postRole(@RequestBody RoleDTO roleDTO) {
+        return new ResponseEntity<>(merchantService.postRole(roleDTO), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/screens", method = RequestMethod.GET)
+    public ResponseEntity<List<Screen>> getScreens() {
+        return new ResponseEntity<>(Arrays.asList(Screen.values()), HttpStatus.OK);
     }
 }
