@@ -13911,7 +13911,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var columns = [{ resizable: true, key: 'name', name: 'Name' }];
+var columns = [{ resizable: true, key: 'name', name: 'Name' }, { resizable: true, key: 'role', name: 'Role' }];
 
 var customStyles = {
     content: {
@@ -13951,19 +13951,19 @@ var AccountComponent = function (_Component) {
         key: 'componentDidMount',
         value: function componentDidMount() {
             this.getMerchants();
-            this.getUserStatus();
+            //  this.getUserStatus();
         }
     }, {
         key: 'getRoles',
         value: function getRoles() {
             var tref = this;
             var merchantId = _reactDom2.default.findDOMNode(this.refs.merchant).value;
-            _axios2.default.get('/rush/role?merchantId=' + merchantId, {
+            _axios2.default.get('/rush-pos-sync/role?merchant=' + merchantId, {
                 headers: {
                     'Content-type': 'application/json'
                 }
             }).then(function (resp) {
-
+                console.log(resp.data);
                 tref.setState({
                     roles: resp.data
                 });
@@ -13976,7 +13976,7 @@ var AccountComponent = function (_Component) {
         value: function getUserStatus() {
             var tref = this;
 
-            _axios2.default.get('/rush/user/status', {
+            _axios2.default.get('/rush-pos-sync/user/status', {
                 headers: {
                     'Content-type': 'application/json'
                 }
@@ -13994,7 +13994,7 @@ var AccountComponent = function (_Component) {
         value: function getMerchants() {
             var tref = this;
 
-            _axios2.default.get('/rush/merchant', {
+            _axios2.default.get('/rush-pos-sync/merchant', {
                 headers: {
                     'Content-type': 'application/json'
                 }
@@ -14012,7 +14012,7 @@ var AccountComponent = function (_Component) {
         value: function getUsers() {
             var tref = this;
             var merchantId = _reactDom2.default.findDOMNode(this.refs.merchant).value;
-            _axios2.default.get('/rush/user?merchantId=' + merchantId, {
+            _axios2.default.get('/rush-pos-sync/account?merchant=' + merchantId, {
                 headers: {
                     'Content-type': 'application/json'
                 }
@@ -14026,6 +14026,37 @@ var AccountComponent = function (_Component) {
             });
         }
     }, {
+        key: 'postAccount',
+        value: function postAccount() {
+            var data = {
+                'uuid': this.state.user.uuid,
+                'roleId': this.state.user.roleId
+            };
+
+            var postConfig = {
+                method: 'POST',
+                url: '/rush-pos-sync/account',
+                data: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                json: true
+            };
+
+            var tref = this;
+
+            (0, _axios2.default)(postConfig).then(function (response) {
+                tref.setState({
+                    message: 'Branch updated',
+                    updateModalIsOpen: false
+                });
+
+                tref.getUsers();
+            }).catch(function (error) {
+                alert(error);
+            });
+        }
+    }, {
         key: 'onRowClick',
         value: function onRowClick(rowIdx, row) {
 
@@ -14034,15 +14065,24 @@ var AccountComponent = function (_Component) {
             this.setState({
                 updateModalIsOpen: true,
                 user: {
-                    id: row.id,
-                    name: row.name,
-                    roleId: row.roleId
+                    uuid: row.uuid,
+                    role: row.role,
+                    roleId: row.roleId,
+                    name: row.name
                 }
             });
         }
     }, {
         key: 'updateValue',
-        value: function updateValue() {}
+        value: function updateValue() {
+            var roleId = _reactDom2.default.findDOMNode(this.refs.role).value;
+            this.setState({
+                user: {
+                    uuid: this.state.user.uuid,
+                    roleId: roleId
+                }
+            });
+        }
     }, {
         key: 'closeUpdateModal',
         value: function closeUpdateModal() {
@@ -14068,27 +14108,87 @@ var AccountComponent = function (_Component) {
                     },
                     _react2.default.createElement(
                         'div',
-                        { className: 'row' },
+                        { className: 'account-modal' },
                         _react2.default.createElement(
                             'div',
-                            { className: 'col-xs-6' },
-                            'Role'
-                        ),
-                        _react2.default.createElement(
-                            'div',
-                            { className: 'col-xs-6' },
+                            { className: 'row' },
                             _react2.default.createElement(
-                                'select',
-                                { ref: 'role', value: this.state.user.roleId, required: true },
-                                this.state.roles.map(function (role) {
-                                    return _react2.default.createElement(
-                                        'option',
-                                        { key: role.id,
-                                            value: role.id },
-                                        role.name
-                                    );
-                                })
+                                'label',
+                                { className: 'prim-label' },
+                                'Account Details'
                             )
+                        ),
+                        _react2.default.createElement('hr', null),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'row' },
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'col-xs-6' },
+                                'Name'
+                            ),
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'col-xs-6' },
+                                _react2.default.createElement('input', { type: 'text', disabled: true, value: this.state.user.name })
+                            )
+                        ),
+                        _react2.default.createElement('br', null),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'row' },
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'col-xs-6' },
+                                'Role'
+                            ),
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'col-xs-6' },
+                                _react2.default.createElement(
+                                    'select',
+                                    { onChange: this.updateValue.bind(this), ref: 'role', value: this.state.user.roleId, required: true },
+                                    _react2.default.createElement(
+                                        'option',
+                                        { value: '-1' },
+                                        '--select--'
+                                    ),
+                                    this.state.roles.map(function (role) {
+                                        return _react2.default.createElement(
+                                            'option',
+                                            { key: role.roleId,
+                                                value: role.roleId },
+                                            role.name
+                                        );
+                                    })
+                                )
+                            )
+                        ),
+                        _react2.default.createElement('hr', null),
+                        _react2.default.createElement(
+                            'div',
+                            { className: 'row' },
+                            _react2.default.createElement('div', { className: 'col-xs-2' }),
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'col-xs-3' },
+                                _react2.default.createElement(
+                                    'button',
+                                    { onClick: this.postAccount.bind(this), className: 'btn btn-primary prim-btn' },
+                                    'Submit'
+                                )
+                            ),
+                            _react2.default.createElement('div', { className: 'col-xs-1' }),
+                            _react2.default.createElement(
+                                'div',
+                                { className: 'col-xs-3' },
+                                _react2.default.createElement(
+                                    'button',
+                                    { className: 'btn btn-default prim-btn' },
+                                    'Cancel'
+                                )
+                            ),
+                            _react2.default.createElement('div', { className: 'col-xs-2' })
                         )
                     )
                 ),
@@ -14096,20 +14196,26 @@ var AccountComponent = function (_Component) {
                     'div',
                     { className: 'row' },
                     _react2.default.createElement(
-                        'div',
-                        { className: 'col-xs-2' },
-                        _react2.default.createElement(
-                            'label',
-                            { className: 'h1' },
-                            'Accounts'
-                        )
-                    ),
+                        'label',
+                        { className: 'prim-label' },
+                        'Accounts'
+                    )
+                ),
+                _react2.default.createElement('hr', null),
+                _react2.default.createElement(
+                    'div',
+                    { className: 'row' },
                     _react2.default.createElement(
                         'div',
-                        { className: 'col-xs-2' },
+                        { className: 'col-xs-3' },
                         _react2.default.createElement(
                             'select',
-                            { ref: 'merchant', defaultValue: '', required: true },
+                            { className: 'prim-select', ref: 'merchant', defaultValue: '', required: true },
+                            _react2.default.createElement(
+                                'option',
+                                { value: '-1' },
+                                '--select--'
+                            ),
                             this.state.merchants.map(function (merchant) {
                                 return _react2.default.createElement(
                                     'option',
@@ -14122,14 +14228,15 @@ var AccountComponent = function (_Component) {
                     ),
                     _react2.default.createElement(
                         'div',
-                        null,
+                        { className: 'col-xs-2' },
                         _react2.default.createElement(
                             'button',
-                            { className: 'btn btn-default', onClick: this.getUsers.bind(this) },
+                            { className: 'btn btn-primary prim-btn', onClick: this.getUsers.bind(this) },
                             'Search'
                         )
                     )
                 ),
+                _react2.default.createElement('br', null),
                 _react2.default.createElement(
                     'div',
                     { className: 'row' },
@@ -14504,6 +14611,11 @@ var BranchComponent = function (_Component) {
                         _react2.default.createElement(
                             'select',
                             { className: 'prim-select', ref: 'merchant', defaultValue: '', required: true },
+                            _react2.default.createElement(
+                                'option',
+                                { value: '-1' },
+                                '--select--'
+                            ),
                             this.state.merchants.map(function (merchant) {
                                 return _react2.default.createElement(
                                     'option',
@@ -15267,8 +15379,8 @@ var SidebarComponent = function (_Component) {
                             null,
                             _react2.default.createElement(
                                 _reactRouterDom.Link,
-                                { to: '/merchant' },
-                                'Role Management'
+                                { to: '/role' },
+                                'Roles'
                             )
                         ),
                         _react2.default.createElement(

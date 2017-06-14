@@ -130,7 +130,7 @@ public class MerchantService {
         return apiResponse;
     }
 
-    public ApiResponse getMerchantAccounts(Long id) {
+    public ApiResponse<List<JSONObject>> getMerchantAccounts(Long id) {
         ApiResponse apiResponse = new ApiResponse();
         try {
             Merchant merchant = merchantRepository.findOne(id);
@@ -173,7 +173,7 @@ public class MerchantService {
         return apiResponse;
     }
 
-    public ApiResponse updateMerchantAccounts(UserDTO userDTO) {
+    public ApiResponse<UserDTO> updateMerchantAccounts(UserDTO userDTO) {
         User user = userRepository.findOneByUuid(userDTO.getUuid());
         if (user == null) {
             user = new User();
@@ -184,7 +184,6 @@ public class MerchantService {
                 userRoleRepository.delete(ur);
             }
         }
-        user.setName(userDTO.getName());
         user.setUuid(userDTO.getUuid());
         user = userRepository.save(user);
         Role role = roleRepository.findOne(userDTO.getRoleId());
@@ -195,6 +194,7 @@ public class MerchantService {
 
         ApiResponse apiResponse = new ApiResponse();
         apiResponse.setResponseCode("200");
+        apiResponse.setData(userDTO);
         return apiResponse;
     }
 
@@ -261,7 +261,7 @@ public class MerchantService {
         return apiResponse;
     }
 
-    public  ApiResponse getRoles(long merchantId) {
+    public  ApiResponse<List<RoleDTO>> getRoles(long merchantId) {
         Merchant merchant = merchantRepository.findOne(merchantId);
         List<Role> roles = roleRepository.findByMerchant(merchant);
 

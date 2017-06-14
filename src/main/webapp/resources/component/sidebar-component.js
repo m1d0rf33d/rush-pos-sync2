@@ -31,8 +31,8 @@ class SidebarComponent extends Component {
                             </Link>
                         </li>
                         <li >
-                            <Link to="/merchant">
-                                Role Management
+                            <Link to="/role">
+                                Roles
                             </Link>
                         </li>
 

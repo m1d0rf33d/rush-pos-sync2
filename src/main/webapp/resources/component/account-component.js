@@ -6,7 +6,7 @@ import Modal from 'react-modal'
 
 const columns = [
     { resizable: true, key: 'name', name: 'Name' },
-
+    { resizable: true, key: 'role', name: 'Role' }
 ]
 
 
@@ -43,18 +43,18 @@ class AccountComponent extends Component {
 
     componentDidMount() {
         this.getMerchants();
-        this.getUserStatus();
+      //  this.getUserStatus();
     }
 
     getRoles() {
         let tref = this;
         let merchantId = ReactDOM.findDOMNode(this.refs.merchant).value;
-        axios.get('/rush/role?merchantId='+merchantId, {
+        axios.get('/rush-pos-sync/role?merchant='+merchantId, {
             headers: {
                 'Content-type': 'application/json'
             }
         }).then(function(resp) {
-
+            console.log(resp.data);
             tref.setState({
                 roles: resp.data
             });
@@ -66,7 +66,7 @@ class AccountComponent extends Component {
     getUserStatus() {
         let tref = this;
 
-        axios.get('/rush/user/status', {
+        axios.get('/rush-pos-sync/user/status', {
             headers: {
                 'Content-type': 'application/json'
             }
@@ -83,7 +83,7 @@ class AccountComponent extends Component {
     getMerchants() {
         let tref = this;
 
-        axios.get('/rush/merchant', {
+        axios.get('/rush-pos-sync/merchant', {
             headers: {
                 'Content-type': 'application/json'
             }
@@ -100,7 +100,7 @@ class AccountComponent extends Component {
     getUsers() {
         let tref = this;
         let merchantId = ReactDOM.findDOMNode(this.refs.merchant).value;
-        axios.get('/rush/user?merchantId=' + merchantId, {
+        axios.get('/rush-pos-sync/account?merchant=' + merchantId, {
             headers: {
                 'Content-type': 'application/json'
             }
@@ -115,24 +115,63 @@ class AccountComponent extends Component {
         });
     }
 
+    postAccount() {
+        let data =  {
+            'uuid': this.state.user.uuid,
+            'roleId': this.state.user.roleId
+        }
+
+
+        let postConfig = {
+            method: 'POST',
+            url: '/rush-pos-sync/account',
+            data: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            json: true
+        };
+
+        let tref = this;
+
+        axios(postConfig)
+            .then(function (response) {
+                tref.setState({
+                    message: 'Branch updated',
+                    updateModalIsOpen: false
+                });
+
+                tref.getUsers();
+
+            }).catch(function(error) {
+            alert(error);
+        })
+    }
 
     onRowClick(rowIdx, row) {
 
         this.getRoles();
-        
+
         this.setState({
             updateModalIsOpen: true,
             user: {
-                id: row.id,
-                name: row.name,
-                roleId: row.roleId
+                uuid: row.uuid,
+                role: row.role,
+                roleId: row.roleId,
+                name: row.name
             }
         });
 
     }
 
     updateValue() {
-
+        let roleId = ReactDOM.findDOMNode(this.refs.role).value;
+        this.setState({
+            user: {
+                uuid: this.state.user.uuid,
+                roleId: roleId
+            }
+        })
     }
 
     closeUpdateModal() {
@@ -151,30 +190,62 @@ class AccountComponent extends Component {
                     style=  {customStyles}
                     contentLabel="Example Modal"
                 >
-                    <div className="row">
-                        <div className="col-xs-6">
-                            Role
+                    <div className="account-modal">
+                        <div className="row">
+                            <label className="prim-label">Account Details</label>
                         </div>
-                        <div className="col-xs-6">
-                            <select ref="role" value={this.state.user.roleId} required>
-                                {
-                                    this.state.roles.map(function(role) {
-                                        return <option key={role.id}
-                                                       value={role.id}>{role.name}</option>;
-                                    })
-                                }
-                            </select>
+                        <hr/>
+                        <div className="row">
+                            <div className="col-xs-6">
+                                Name
+                            </div>
+                            <div className="col-xs-6">
+                                <input type="text" disabled value={this.state.user.name} />
+                            </div>
+                        </div>
+                        <br/>
+                        <div className="row">
+                            <div className="col-xs-6">
+                                Role
+                            </div>
+                            <div className="col-xs-6">
+                                <select onChange={this.updateValue.bind(this)} ref="role" value={this.state.user.roleId} required>
+                                    <option value="-1">--select--</option>
+                                    {
+                                        this.state.roles.map(function(role) {
+                                            return <option key={role.roleId}
+                                                           value={role.roleId}>{role.name}</option>;
+                                        })
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <hr/>
+                        <div className="row">
+                            <div className="col-xs-2">
+                            </div>
+                            <div className="col-xs-3">
+                                <button onClick={this.postAccount.bind(this)} className="btn btn-primary prim-btn">Submit</button>
+                            </div>
+                            <div className="col-xs-1"></div>
+                            <div className="col-xs-3">
+                                <button className="btn btn-default prim-btn">Cancel</button>
+                            </div>
+                            <div className="col-xs-2">
+                            </div>
                         </div>
                     </div>
 
                 </Modal>
-
                 <div className="row">
-                    <div className="col-xs-2">
-                        <label className="h1">Accounts</label>
-                    </div>
-                    <div className="col-xs-2">
-                        <select ref="merchant" defaultValue="" required>
+                    <label className="prim-label">Accounts</label>
+                </div>
+                <hr/>
+                <div className="row">
+
+                    <div className="col-xs-3">
+                        <select className="prim-select" ref="merchant" defaultValue="" required>
+                            <option value="-1">--select--</option>
                             {
                                 this.state.merchants.map(function(merchant) {
                                     return <option key={merchant.id}
@@ -183,11 +254,12 @@ class AccountComponent extends Component {
                             }
                         </select>
                     </div>
-                    <div>
+                    <div className="col-xs-2">
 
-                        <button className="btn btn-default" onClick={this.getUsers.bind(this)}>Search</button>
+                        <button className="btn btn-primary prim-btn" onClick={this.getUsers.bind(this)}>Search</button>
                     </div>
                 </div>
+                <br/>
                 <div className="row">
                     <ReactDataGrid
                         columns={columns}

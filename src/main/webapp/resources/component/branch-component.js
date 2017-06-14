@@ -217,6 +217,7 @@ class BranchComponent extends Component {
             <div className="row">
                 <div className="col-xs-3">
                     <select className="prim-select" ref="merchant" defaultValue="" required>
+                        <option value="-1">--select--</option>
                         {
                             this.state.merchants.map(function(merchant) {
                                 return <option key={merchant.id}

@@ -3,8 +3,11 @@ package com.rush.controller;
 import com.rush.model.ApiResponse;
 import com.rush.model.dto.BranchDTO;
 import com.rush.model.dto.MerchantDTO;
+import com.rush.model.dto.RoleDTO;
+import com.rush.model.dto.UserDTO;
 import com.rush.model.enums.MerchantStatus;
 import com.rush.service.MerchantService;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,5 +49,19 @@ public class WebResource {
     @RequestMapping(value = "/branch", method = RequestMethod.POST)
     public ResponseEntity<BranchDTO> postBranch(@RequestBody BranchDTO branchDTO) {
         return new ResponseEntity<>(merchantService.updateBranch(branchDTO).getData(), HttpStatus.OK );
+    }
+
+    @RequestMapping(value = "/account", method = RequestMethod.GET)
+    public ResponseEntity<List<JSONObject>> getAccounts(@RequestParam(value = "merchant") Long merchantId) {
+        return new ResponseEntity<>(merchantService.getMerchantAccounts(merchantId).getData(), HttpStatus.OK);
+    }
+    @RequestMapping(value = "/account", method = RequestMethod.POST)
+    public ResponseEntity<UserDTO> postAccount(@RequestBody UserDTO userDTO) {
+        return new ResponseEntity<>(merchantService.updateMerchantAccounts(userDTO).getData(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/role", method = RequestMethod.GET)
+    public ResponseEntity<List<RoleDTO>> getRoles(@RequestParam(value = "merchant") Long merchantId) {
+        return new ResponseEntity<>(merchantService.getRoles(merchantId).getData(), HttpStatus.OK);
     }
 }
