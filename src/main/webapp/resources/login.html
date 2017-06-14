@@ -1,0 +1,52 @@
+<html>
+
+<head>
+    <script href="/rush-pos-sync/resources/ljs/"></script>
+    <link rel="stylesheet" href="/rush-pos-sync/resources/css/bootstrap.css">
+</head>
+
+<body>
+
+
+<div style="width: 100%;">
+
+    <div style="padding-top: 20px;margin-left: 30%; margin-top: 10%;min-width: 400px; border: 1px solid black; height: 250px; width: 400px;">
+
+        <div class="row" style="text-align: center;">
+            <label style="display: inline-block; font-size: 18px;">Rush POS Sync </label>
+
+        </div><br/>
+
+        <form action="/rush-pos-sync/login" method="POST">
+
+            <div class="row"  style="margin-left: 10%;">
+                <div class="col-xs-2">
+                    <label>Username: </label>
+                </div>
+                <div class="col-xs-2" style="margin-left: 20px;">
+                    <input name="username" type="text"/>
+                </div>
+
+            </div><br/>
+
+            <div class="row" style="margin-left: 10%;">
+                <div class="col-xs-2" >
+                    <label>Password: </label>
+                </div>
+                <div class="col-xs-2" style="margin-left: 20px;">
+                    <input name="password" type="text"/>
+                </div>
+            </div><br/>
+            <div class="row">
+                <button type="submit" style="margin-left: 30%;" class="btn btn-primary">Login</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+</body>
+
+
+
+</html>

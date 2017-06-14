@@ -78,7 +78,7 @@ public class MerchantService {
         return apiResponse;
     }
 
-    public ApiResponse updateMerchant(MerchantDTO merchantDTO) {
+    public ApiResponse<MerchantDTO> updateMerchant(MerchantDTO merchantDTO) {
         Merchant merchant;
         if (merchantDTO.getId() == null) {
             merchant= new Merchant();
@@ -102,6 +102,7 @@ public class MerchantService {
 
         ApiResponse apiResponse = new ApiResponse();
         apiResponse.setResponseCode("200");
+        apiResponse.setData(merchantDTO);
         return apiResponse;
     }
 

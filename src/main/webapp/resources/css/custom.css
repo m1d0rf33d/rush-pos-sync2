@@ -1,0 +1,77 @@
+.login_wrapper {
+	border:1px solid black;
+	 margin-left: 30%; 
+	 margin-top:10%;
+	 width: 40%;
+	 padding: 10px;
+}
+
+.sidebar-container {
+	margin-top: 49px;
+}
+
+
+.container-fluid {
+	background-color: #23282e;
+	color: white;
+}
+.navbar-header {
+	height: 50px;
+}
+
+.nav-header-lbl {
+	display: inline-block;
+	margin-top: 12%;
+}
+
+.nav-container {
+	margin-top: -1px;
+	margin-left: -1px;
+	margin-right: -1px;
+	position: fixed;
+	width: 100%;
+	z-index: 1;
+}
+
+.logout-link {
+	color: white !important;
+	display: inline-block;
+}
+
+
+a {
+	display: inline-block;
+	width: 100%;
+	padding-left: 10px;
+}
+
+.content-container {
+	margin-top: 100px;
+}
+
+
+.hidden { display:none; }
+
+.h1 {
+	display: inline-block;
+	font-size: 16px;
+}
+
+.merchant-add-btn {
+	margin-top: 10px;
+}
+
+li {
+	font-size: 16px;
+}
+
+.nav-header-lbl {
+	font-size: 18px;
+}
+
+.branch-modal {
+	width: 400px;
+	min-width: 400px;
+	height: 200px;
+	min-height: 200px;
+}

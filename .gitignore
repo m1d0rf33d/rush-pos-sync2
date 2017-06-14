@@ -29,6 +29,7 @@
 .idea/workspace.xml
 target/
 *.rej
+.node_modules/
 
 ##########
 # OTHERS #
