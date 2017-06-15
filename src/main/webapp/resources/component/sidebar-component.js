@@ -36,15 +36,6 @@ class SidebarComponent extends Component {
                             </Link>
                         </li>
 
-
-                        <li >
-                            <Link to="/merchant">
-                                Screen Restrictions
-                            </Link>
-                        </li>
-
-
-
                     </ul>
                 </div>
             </div>

@@ -24,7 +24,7 @@ class NavComponent extends Component {
                             </label>
                         </div>
                         <ul className="nav navbar-nav navbar-right">
-                            <li><a  onClick={() =>  this.props.updateLoginState(false)} className="logout-link" href="#">Logout</a></li>
+                            <li><a   className="logout-link" href="http://localhost:8080/rush-pos-sync/logout">Logout</a></li>
                         </ul>
                     </div>
                 </nav>

@@ -61,7 +61,10 @@ class RoleComponent extends Component {
         });
     }
 
+    updateValue() {
 
+        this.state.role.name = ReactDOM.findDOMNode(this.refs.role).value;
+    }
 
 
     getRoles() {
@@ -86,13 +89,129 @@ class RoleComponent extends Component {
         this.setState({
             updateModalIsOpen: true,
             role: {
+                id: row.roleId,
+                name: row.name,
                 screens: row.screens
             }
         })
     }
 
     postRole() {
+        let register           = ReactDOM.findDOMNode(this.refs.REGISTER).checked;
+        let member_profile     = ReactDOM.findDOMNode(this.refs.MEMBER_PROFILE).checked;
+        let give_points        = ReactDOM.findDOMNode(this.refs.GIVE_POINTS).checked;
+        let guest_purchase     = ReactDOM.findDOMNode(this.refs.GUEST_PURCHASE).checked;
+        let give_points_ocr    = ReactDOM.findDOMNode(this.refs.GIVE_POINTS_OCR).checked;
+        let give_stamps        = ReactDOM.findDOMNode(this.refs.GIVE_STAMPS).checked;
+        let pay_with_points    = ReactDOM.findDOMNode(this.refs.PAY_WITH_POINTS).checked;
+        let redeem_rewards    = ReactDOM.findDOMNode(this.refs.REDEEM_REWARDS).checked;
+        let issue_rewards    = ReactDOM.findDOMNode(this.refs.ISSUE_REWARDS).checked;
+        let transaction_view    = ReactDOM.findDOMNode(this.refs.TRANSACTIONS_VIEW).checked;
+        let ocr_settings    = ReactDOM.findDOMNode(this.refs.OCR_SETTINGS).checked;
+        let offline_transactions    = ReactDOM.findDOMNode(this.refs.OFFLINE_TRANSACTIONS).checked;
 
+
+        let merchant_id = ReactDOM.findDOMNode(this.refs.merchant).value;
+        let data = {
+            'name': this.state.role.name,
+            'merchantId': merchant_id,
+            'roleId': this.state.role.id,
+            'screens': [
+                {
+                   'name': 'REGISTER',
+                    'checked': register
+                },
+                {
+                    'name': 'MEMBER_PROFILE',
+                    'checked': member_profile
+                },
+                {
+                    'name': 'GIVE_POINTS',
+                    'checked': give_points
+                },
+                {
+                    'name': 'GUEST_PURCHASE',
+                    'checked': guest_purchase
+                },
+                {
+                    'name': 'GIVE_POINTS_OCR',
+                    'checked': give_points_ocr
+                },
+                {
+                    'name': 'GIVE_STAMPS',
+                    'checked': give_stamps
+                },
+                {
+                    'name': 'PAY_WITH_POINTS',
+                    'checked': pay_with_points
+                },
+                {
+                    'name': 'GIVE_POINTS',
+                    'checked': give_points
+                },
+                {
+                    'name': 'GUEST_PURCHASE',
+                    'checked': guest_purchase
+                },
+                {
+                    'name': 'GIVE_POINTS_OCR',
+                    'checked': give_points_ocr
+                },
+                {
+                    'name': 'GIVE_STAMPS',
+                    'checked': give_stamps
+                },
+                {
+                    'name': 'PAY_WITH_POINTS',
+                    'checked': pay_with_points
+                },
+                {
+                    'name': 'REDEEM_REWARDS',
+                    'checked': redeem_rewards
+                },
+                {
+                    'name': 'ISSUE_REWARDS',
+                    'checked': issue_rewards
+                },
+                {
+                    'name': 'TRANSACTIONS_VIEW',
+                    'checked': transaction_view
+                },
+                {
+                    'name': 'OCR_SETTINGS',
+                    'checked': ocr_settings
+                },
+                {
+                    'name': 'OFFLINE_TRANSACTIONS',
+                    'checked': offline_transactions
+                }
+            ]
+        }
+
+        let postConfig = {
+            method: 'POST',
+            url: '/rush-pos-sync/role',
+            data: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            json: true
+        };
+
+        let tref = this;
+
+        axios(postConfig)
+            .then(function (response) {
+                tref.setState({
+                    message: 'Branch updated',
+                    updateModalIsOpen: false
+                });
+
+                tref.getRoles();
+
+            }).catch(function(error) {
+            alert(error);
+        })
     }
 
     closeUpdateModal() {
@@ -100,6 +219,8 @@ class RoleComponent extends Component {
             updateModalIsOpen: false
         })
     }
+
+
 
     render() {
         return (
@@ -112,34 +233,46 @@ class RoleComponent extends Component {
                 >
                     <div className="role-modal">
                         <div className="row">
-                            <label>Role Details</label>
+                            <label className="prim-label">Role Details</label>
                          </div>
+                         <hr/>
                        <div className="row">
-                           <div className="col-xs-6">
+                           <div className="col-xs-3">
                                Name
                            </div>
-                           <div className="col-xs-6">
-                               <input type="text" ref="role" />
+                           <div className="col-xs-9">
+                               <input onChange={this.updateValue.bind(this)} type="text" ref="role" value={this.state.role.name}/>
                            </div>
                        </div>
-
+                        <br/>
                         <div className="row">
-                            <div className="col-xs-6">
+                            <div className="col-xs-3">
                                 Access
                             </div>
-                            <div className="col-xs-6">
-                                {this.state.role.screens.map(function(screen) {
+                            <div className="col-xs-9">
+                                {this.state.role.screens.map((screen,idx) => {
+
                                     return (
                                         <div className="row">
                                             <div className="col-xs-6">
                                                 {screen.name}
                                             </div>
                                             <div className="col-xs-6">
-                                                <input type="checkbox" checked={screen.checked}/>
+                                                <input ref={screen.name} className={screen.name} type="checkbox" defaultChecked={screen.checked}/>
                                             </div>
                                          </div>
                                     );
                                 })}
+                            </div>
+                        </div>
+                        <br/>
+                        <div className="row">
+                            <div className="col-xs-3"></div>
+                            <div className="col-xs-3">
+                                <button className="btn btn-primary prim-btn" onClick={this.postRole.bind(this)}>Submit</button>
+                            </div>
+                            <div className="col-xs-3">
+                                <button className="btn btn-default prim-btn" onClick={this.postRole.bind(this)}>Cancel</button>
                             </div>
                         </div>
                     </div>
