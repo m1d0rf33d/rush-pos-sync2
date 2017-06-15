@@ -1,10 +1,7 @@
 package com.rush.controller;
 
 import com.rush.model.ApiResponse;
-import com.rush.model.dto.BranchDTO;
-import com.rush.model.dto.MerchantDTO;
-import com.rush.model.dto.RoleDTO;
-import com.rush.model.dto.UserDTO;
+import com.rush.model.dto.*;
 import com.rush.model.enums.MerchantStatus;
 import com.rush.model.enums.Screen;
 import com.rush.service.MerchantService;
@@ -14,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -72,7 +70,14 @@ public class WebResource {
     }
 
     @RequestMapping(value = "/screens", method = RequestMethod.GET)
-    public ResponseEntity<List<Screen>> getScreens() {
-        return new ResponseEntity<>(Arrays.asList(Screen.values()), HttpStatus.OK);
+    public ResponseEntity<List<ScreenDTO>> getScreens() {
+        List<ScreenDTO> screenDTOs = new ArrayList<>();
+        Arrays.asList(Screen.values()).forEach( screen -> {
+            ScreenDTO screenDTO = new ScreenDTO();
+            screenDTO.setChecked(false);
+            screenDTO.setName(screen.toString());
+            screenDTOs.add(screenDTO);
+        });
+        return new ResponseEntity<>(screenDTOs, HttpStatus.OK);
     }
 }

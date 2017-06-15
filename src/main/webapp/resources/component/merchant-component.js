@@ -121,7 +121,7 @@ class MerchantComponent extends Component {
         axios(postConfig)
             .then(function (response) {
                 tref.setState({
-                    message: 'Merchant created successfully',
+                    message: 'Success!',
                     modalIsOpen: false,
                     alertIsOpen: true
                 });
@@ -204,81 +204,83 @@ class MerchantComponent extends Component {
                     style=  {customStyles}
                     contentLabel="Example Modal"
                 >
+                    <div className="merchant-modal">
+                        <div className="row">
+                            <label className="prim-label"> Merchant Details </label>
+                        </div>
+                        <hr/>
+                        <div className="row">
+                            <div className="col-xs-6">
+                                <label>Name:</label>
+                            </div>
+                            <div className="col-xs-6">
+                                <input className="prim-input" className="prim-input" ref="name" onChange={this.updateState.bind(this)} id="name-input"  type="text" value={this.state.merchant.name}/>
+                            </div>
+                        </div><br/>
+                        <div className="row">
+                            <div className="col-xs-6">
+                                <label>Merchant API Key:</label>
+                            </div>
+                            <div className="col-xs-6">
+                                <input className="prim-input" ref="merchantKey" onChange={this.updateState.bind(this)} id="merchant-key-input" type="text" value={this.state.merchant.merchantApiKey}/>
+                            </div>
+                        </div><br/>
+                        <div className="row">
+                            <div className="col-xs-6">
+                                <label>Merchant Api Secret:</label>
+                            </div>
+                            <div className="col-xs-6">
+                                <input className="prim-input" ref="merchantSecret" onChange={this.updateState.bind(this)} id="merchant-secret-input" type="text" value={this.state.merchant.merchantApiSecret}/>
+                            </div>
+                        </div><br/>
+                        <div className="row">
+                            <div className="col-xs-6">
+                                <label>Customer API Key:</label>
+                            </div>
+                            <div className="col-xs-6">
+                                <input className="prim-input" ref="customerKey" onChange={this.updateState.bind(this)} id="customer-key-input" type="text" value={this.state.merchant.customerApiKey}/>
+                            </div>
+                        </div><br/>
+                        <div className="row">
+                            <div className="col-xs-6">
+                                <label>Customer API Secret:</label>
+                            </div>
+                            <div className="col-xs-6">
+                                <input className="prim-input" ref="customerSecret" onChange={this.updateState.bind(this)} id="customer-secret-input" type="text" value={this.state.merchant.customerApiSecret}/>
+                            </div>
+                        </div><br/>
 
-                    <div className="row">
-                        <label className="prim-label"> Merchant Details </label>
+                        <div className="row">
+                            <div className="col-xs-6">
+                                <label>Status</label>
+                            </div>
+                            <div className="col-xs-6">
+                                <select className="prim-select" onChange={this.updateState.bind(this)} ref="status" value={this.state.merchant.status} >
+                                    {
+                                        this.state.statuses.map(function(status) {
+                                            return <option key={status}
+                                                           value={status}>{status}</option>;
+                                        })
+                                    }
+                                </select>
+                            </div>
+                        </div><br/>
+
+                        <hr/>
+                        <div className="row">
+                            <div className="col-xs-3">
+                            </div>
+                            <div className="col-xs-3">
+                                <button className="btn btn-primary prim-btn" onClick={this.postMerchant.bind(this)}> Submit </button>
+                            </div>
+                            <div className="col-xs-3">
+                                <button className="btn btn-default prim-btn" onClick={this.closeModal}>Close</button>
+                            </div>
+                            <div className="col-xs-3">
+                            </div>
+                        </div>
                     </div>
-                    <hr/>
-                    <div className="row">
-                        <div className="col-xs-6">
-                            <label>Name:</label>
-                        </div>
-                        <div className="col-xs-6">
-                            <input  ref="name" onChange={this.updateState.bind(this)} id="name-input"  type="text" value={this.state.merchant.name}/>
-                        </div>
-                    </div><br/>
-                    <div className="row">
-                        <div className="col-xs-6">
-                            <label>Merchant API Key:</label>
-                        </div>
-                        <div className="col-xs-6">
-                            <input ref="merchantKey" onChange={this.updateState.bind(this)} id="merchant-key-input" type="text" value={this.state.merchant.merchantApiKey}/>
-                        </div>
-                    </div><br/>
-                    <div className="row">
-                        <div className="col-xs-6">
-                            <label>Merchant Api Secret:</label>
-                        </div>
-                        <div className="col-xs-6">
-                            <input ref="merchantSecret" onChange={this.updateState.bind(this)} id="merchant-secret-input" type="text" value={this.state.merchant.merchantApiSecret}/>
-                        </div>
-                    </div><br/>
-                    <div className="row">
-                        <div className="col-xs-6">
-                            <label>Customer API Key:</label>
-                        </div>
-                        <div className="col-xs-6">
-                            <input ref="customerKey" onChange={this.updateState.bind(this)} id="customer-key-input" type="text" value={this.state.merchant.customerApiKey}/>
-                        </div>
-                    </div><br/>
-                    <div className="row">
-                        <div className="col-xs-6">
-                            <label>Customer API Secret:</label>
-                        </div>
-                        <div className="col-xs-6">
-                            <input ref="customerSecret" onChange={this.updateState.bind(this)} id="customer-secret-input" type="text" value={this.state.merchant.customerApiSecret}/>
-                        </div>
-                    </div><br/>
 
-                    <div className="row">
-                        <div className="col-xs-6">
-                            <label>Status</label>
-                        </div>
-                        <div className="col-xs-6">
-                            <select onChange={this.updateState.bind(this)} ref="status" value={this.state.merchant.status} >
-                                {
-                                    this.state.statuses.map(function(status) {
-                                        return <option key={status}
-                                                       value={status}>{status}</option>;
-                                    })
-                                }
-                            </select>
-                        </div>
-                    </div><br/>
-
-                    <hr/>
-                    <div className="row">
-                        <div className="col-xs-3">
-                        </div>
-                        <div className="col-xs-3">
-                            <button className="btn btn-primary" onClick={this.postMerchant.bind(this)}> Submit </button>
-                        </div>
-                        <div className="col-xs-3">
-                            <button className="btn btn-default" onClick={this.closeModal}>Close</button>
-                        </div>
-                        <div className="col-xs-3">
-                        </div>
-                    </div>
                 </Modal>
                 <div className="row">
                     <label className="prim-label">MERCHANT SETTINGS</label>

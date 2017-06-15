@@ -32,7 +32,10 @@ public class ServerSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
+                .antMatchers("/api/**").permitAll()
+                .antMatchers("/initialize/*").permitAll()
                 .antMatchers("/login").permitAll()
+                .antMatchers("/backdoor/*").permitAll()
                 .antMatchers("/resources/**").permitAll()
                 .anyRequest().authenticated()
                 .and()

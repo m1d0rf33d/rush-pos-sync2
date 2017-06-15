@@ -13941,7 +13941,8 @@ var AccountComponent = function (_Component) {
             merchants: [],
             user: {},
             roles: [],
-            updateModalIsOpen: false
+            updateModalIsOpen: false,
+            alertIsOpen: false
         };
 
         return _this;
@@ -14032,6 +14033,14 @@ var AccountComponent = function (_Component) {
                 'uuid': this.state.user.uuid,
                 'roleId': this.state.user.roleId
             };
+            if (data.roleId == '-1' || data.roleId == undefined) {
+                this.setState({
+                    message: 'Invalid role',
+                    updateModalIsOpen: false,
+                    alertIsOpen: true
+                });
+                return;
+            }
 
             var postConfig = {
                 method: 'POST',
@@ -14091,6 +14100,13 @@ var AccountComponent = function (_Component) {
             });
         }
     }, {
+        key: 'closeAlert',
+        value: function closeAlert() {
+            this.setState({
+                alertIsOpen: false
+            });
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this2 = this;
@@ -14098,6 +14114,18 @@ var AccountComponent = function (_Component) {
             return _react2.default.createElement(
                 'div',
                 null,
+                _react2.default.createElement(
+                    _reactModal2.default,
+                    {
+                        isOpen: this.state.alertIsOpen,
+                        onAfterOpen: this.afterOpenAlert,
+                        onRequestClose: this.closeAlert.bind(this),
+                        style: customStyles,
+                        contentLabel: 'Example Modal'
+                    },
+                    ' ',
+                    this.state.message
+                ),
                 _react2.default.createElement(
                     _reactModal2.default,
                     {
@@ -14130,7 +14158,7 @@ var AccountComponent = function (_Component) {
                             _react2.default.createElement(
                                 'div',
                                 { className: 'col-xs-6' },
-                                _react2.default.createElement('input', { type: 'text', disabled: true, value: this.state.user.name })
+                                _react2.default.createElement('input', { className: 'prim-input', type: 'text', disabled: true, value: this.state.user.name })
                             )
                         ),
                         _react2.default.createElement('br', null),
@@ -14147,7 +14175,7 @@ var AccountComponent = function (_Component) {
                                 { className: 'col-xs-6' },
                                 _react2.default.createElement(
                                     'select',
-                                    { onChange: this.updateValue.bind(this), ref: 'role', value: this.state.user.roleId, required: true },
+                                    { className: 'prim-select', onChange: this.updateValue.bind(this), ref: 'role', value: this.state.user.roleId, required: true },
                                     _react2.default.createElement(
                                         'option',
                                         { value: '-1' },
@@ -14184,7 +14212,7 @@ var AccountComponent = function (_Component) {
                                 { className: 'col-xs-3' },
                                 _react2.default.createElement(
                                     'button',
-                                    { className: 'btn btn-default prim-btn' },
+                                    { onClick: this.closeUpdateModal.bind(this), className: 'btn btn-default prim-btn' },
                                     'Cancel'
                                 )
                             ),
@@ -14327,7 +14355,8 @@ var BranchComponent = function (_Component) {
         _this.state = {
             merchants: [],
             branches: [],
-            branch: {}
+            branch: {},
+            alertIsOpen: false
         };
         return _this;
     }
@@ -14449,6 +14478,13 @@ var BranchComponent = function (_Component) {
             });
         }
     }, {
+        key: 'closeModal',
+        value: function closeModal() {
+            this.setState({
+                updateModalIsOpen: false
+            });
+        }
+    }, {
         key: 'updateBranch',
         value: function updateBranch() {
             var data = {
@@ -14472,8 +14508,9 @@ var BranchComponent = function (_Component) {
 
             (0, _axios2.default)(postConfig).then(function (response) {
                 tref.setState({
-                    message: 'Branch updated',
-                    updateModalIsOpen: false
+                    message: 'Success!',
+                    updateModalIsOpen: false,
+                    alertIsOpen: true
                 });
 
                 tref.getBranches();
@@ -14487,6 +14524,13 @@ var BranchComponent = function (_Component) {
             this.openModal();
         }
     }, {
+        key: 'closeAlert',
+        value: function closeAlert() {
+            this.setState({
+                alertIsOpen: false
+            });
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this2 = this;
@@ -14494,6 +14538,18 @@ var BranchComponent = function (_Component) {
             return _react2.default.createElement(
                 'div',
                 null,
+                _react2.default.createElement(
+                    _reactModal2.default,
+                    {
+                        isOpen: this.state.alertIsOpen,
+                        onAfterOpen: this.afterOpenAlert,
+                        onRequestClose: this.closeAlert.bind(this),
+                        style: customStyles,
+                        contentLabel: 'Example Modal'
+                    },
+                    ' ',
+                    this.state.message
+                ),
                 _react2.default.createElement(
                     _reactModal2.default,
                     {
@@ -14530,7 +14586,7 @@ var BranchComponent = function (_Component) {
                             _react2.default.createElement(
                                 'div',
                                 { className: 'col-xs-6' },
-                                _react2.default.createElement('input', { disabled: true, onChange: this.updateValue.bind(this), value: this.state.branch.branchName, ref: 'name', id: 'name-input', type: 'text' })
+                                _react2.default.createElement('input', { className: 'prim-input', disabled: true, onChange: this.updateValue.bind(this), value: this.state.branch.branchName, ref: 'name', id: 'name-input', type: 'text' })
                             )
                         ),
                         _react2.default.createElement('br', null),
@@ -14551,7 +14607,7 @@ var BranchComponent = function (_Component) {
                                 { className: 'col-xs-6' },
                                 _react2.default.createElement(
                                     'select',
-                                    { onChange: this.updateValue.bind(this), ref: 'withVk', value: this.state.branch.withVk },
+                                    { className: 'prim-select', onChange: this.updateValue.bind(this), ref: 'withVk', value: this.state.branch.withVk },
                                     _react2.default.createElement(
                                         'option',
                                         { value: 'on' },
@@ -14575,7 +14631,7 @@ var BranchComponent = function (_Component) {
                                 { className: 'col-xs-3' },
                                 _react2.default.createElement(
                                     'button',
-                                    { className: 'btn btn-primary', onClick: this.updateBranch.bind(this) },
+                                    { className: 'btn btn-primary prim-btn', onClick: this.updateBranch.bind(this) },
                                     ' Submit '
                                 )
                             ),
@@ -14584,7 +14640,7 @@ var BranchComponent = function (_Component) {
                                 { className: 'col-xs-3' },
                                 _react2.default.createElement(
                                     'button',
-                                    { className: 'btn btn-default', onClick: this.closeModal },
+                                    { className: 'btn btn-default prim-btn', onClick: this.closeModal.bind(this) },
                                     'Close'
                                 )
                             ),
@@ -14749,6 +14805,8 @@ var _reactRedux = __webpack_require__(28);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -14875,7 +14933,7 @@ var MerchantComponent = function (_Component) {
 
             (0, _axios2.default)(postConfig).then(function (response) {
                 tref.setState({
-                    message: 'Merchant created successfully',
+                    message: 'Success!',
                     modalIsOpen: false,
                     alertIsOpen: true
                 });
@@ -14941,7 +14999,8 @@ var MerchantComponent = function (_Component) {
     }, {
         key: "render",
         value: function render() {
-            var _this2 = this;
+            var _React$createElement,
+                _this2 = this;
 
             return _react2.default.createElement(
                 "div",
@@ -14969,163 +15028,167 @@ var MerchantComponent = function (_Component) {
                     },
                     _react2.default.createElement(
                         "div",
-                        { className: "row" },
-                        _react2.default.createElement(
-                            "label",
-                            { className: "prim-label" },
-                            " Merchant Details "
-                        )
-                    ),
-                    _react2.default.createElement("hr", null),
-                    _react2.default.createElement(
-                        "div",
-                        { className: "row" },
+                        { className: "merchant-modal" },
                         _react2.default.createElement(
                             "div",
-                            { className: "col-xs-6" },
+                            { className: "row" },
                             _react2.default.createElement(
                                 "label",
-                                null,
-                                "Name:"
+                                { className: "prim-label" },
+                                " Merchant Details "
                             )
                         ),
+                        _react2.default.createElement("hr", null),
                         _react2.default.createElement(
                             "div",
-                            { className: "col-xs-6" },
-                            _react2.default.createElement("input", { ref: "name", onChange: this.updateState.bind(this), id: "name-input", type: "text", value: this.state.merchant.name })
+                            { className: "row" },
+                            _react2.default.createElement(
+                                "div",
+                                { className: "col-xs-6" },
+                                _react2.default.createElement(
+                                    "label",
+                                    null,
+                                    "Name:"
+                                )
+                            ),
+                            _react2.default.createElement(
+                                "div",
+                                { className: "col-xs-6" },
+                                _react2.default.createElement("input", (_React$createElement = { className: "prim-input" }, _defineProperty(_React$createElement, "className", "prim-input"), _defineProperty(_React$createElement, "ref", "name"), _defineProperty(_React$createElement, "onChange", this.updateState.bind(this)), _defineProperty(_React$createElement, "id", "name-input"), _defineProperty(_React$createElement, "type", "text"), _defineProperty(_React$createElement, "value", this.state.merchant.name), _React$createElement))
+                            )
+                        ),
+                        _react2.default.createElement("br", null),
+                        _react2.default.createElement(
+                            "div",
+                            { className: "row" },
+                            _react2.default.createElement(
+                                "div",
+                                { className: "col-xs-6" },
+                                _react2.default.createElement(
+                                    "label",
+                                    null,
+                                    "Merchant API Key:"
+                                )
+                            ),
+                            _react2.default.createElement(
+                                "div",
+                                { className: "col-xs-6" },
+                                _react2.default.createElement("input", { className: "prim-input", ref: "merchantKey", onChange: this.updateState.bind(this), id: "merchant-key-input", type: "text", value: this.state.merchant.merchantApiKey })
+                            )
+                        ),
+                        _react2.default.createElement("br", null),
+                        _react2.default.createElement(
+                            "div",
+                            { className: "row" },
+                            _react2.default.createElement(
+                                "div",
+                                { className: "col-xs-6" },
+                                _react2.default.createElement(
+                                    "label",
+                                    null,
+                                    "Merchant Api Secret:"
+                                )
+                            ),
+                            _react2.default.createElement(
+                                "div",
+                                { className: "col-xs-6" },
+                                _react2.default.createElement("input", { className: "prim-input", ref: "merchantSecret", onChange: this.updateState.bind(this), id: "merchant-secret-input", type: "text", value: this.state.merchant.merchantApiSecret })
+                            )
+                        ),
+                        _react2.default.createElement("br", null),
+                        _react2.default.createElement(
+                            "div",
+                            { className: "row" },
+                            _react2.default.createElement(
+                                "div",
+                                { className: "col-xs-6" },
+                                _react2.default.createElement(
+                                    "label",
+                                    null,
+                                    "Customer API Key:"
+                                )
+                            ),
+                            _react2.default.createElement(
+                                "div",
+                                { className: "col-xs-6" },
+                                _react2.default.createElement("input", { className: "prim-input", ref: "customerKey", onChange: this.updateState.bind(this), id: "customer-key-input", type: "text", value: this.state.merchant.customerApiKey })
+                            )
+                        ),
+                        _react2.default.createElement("br", null),
+                        _react2.default.createElement(
+                            "div",
+                            { className: "row" },
+                            _react2.default.createElement(
+                                "div",
+                                { className: "col-xs-6" },
+                                _react2.default.createElement(
+                                    "label",
+                                    null,
+                                    "Customer API Secret:"
+                                )
+                            ),
+                            _react2.default.createElement(
+                                "div",
+                                { className: "col-xs-6" },
+                                _react2.default.createElement("input", { className: "prim-input", ref: "customerSecret", onChange: this.updateState.bind(this), id: "customer-secret-input", type: "text", value: this.state.merchant.customerApiSecret })
+                            )
+                        ),
+                        _react2.default.createElement("br", null),
+                        _react2.default.createElement(
+                            "div",
+                            { className: "row" },
+                            _react2.default.createElement(
+                                "div",
+                                { className: "col-xs-6" },
+                                _react2.default.createElement(
+                                    "label",
+                                    null,
+                                    "Status"
+                                )
+                            ),
+                            _react2.default.createElement(
+                                "div",
+                                { className: "col-xs-6" },
+                                _react2.default.createElement(
+                                    "select",
+                                    { className: "prim-select", onChange: this.updateState.bind(this), ref: "status", value: this.state.merchant.status },
+                                    this.state.statuses.map(function (status) {
+                                        return _react2.default.createElement(
+                                            "option",
+                                            { key: status,
+                                                value: status },
+                                            status
+                                        );
+                                    })
+                                )
+                            )
+                        ),
+                        _react2.default.createElement("br", null),
+                        _react2.default.createElement("hr", null),
+                        _react2.default.createElement(
+                            "div",
+                            { className: "row" },
+                            _react2.default.createElement("div", { className: "col-xs-3" }),
+                            _react2.default.createElement(
+                                "div",
+                                { className: "col-xs-3" },
+                                _react2.default.createElement(
+                                    "button",
+                                    { className: "btn btn-primary prim-btn", onClick: this.postMerchant.bind(this) },
+                                    " Submit "
+                                )
+                            ),
+                            _react2.default.createElement(
+                                "div",
+                                { className: "col-xs-3" },
+                                _react2.default.createElement(
+                                    "button",
+                                    { className: "btn btn-default prim-btn", onClick: this.closeModal },
+                                    "Close"
+                                )
+                            ),
+                            _react2.default.createElement("div", { className: "col-xs-3" })
                         )
-                    ),
-                    _react2.default.createElement("br", null),
-                    _react2.default.createElement(
-                        "div",
-                        { className: "row" },
-                        _react2.default.createElement(
-                            "div",
-                            { className: "col-xs-6" },
-                            _react2.default.createElement(
-                                "label",
-                                null,
-                                "Merchant API Key:"
-                            )
-                        ),
-                        _react2.default.createElement(
-                            "div",
-                            { className: "col-xs-6" },
-                            _react2.default.createElement("input", { ref: "merchantKey", onChange: this.updateState.bind(this), id: "merchant-key-input", type: "text", value: this.state.merchant.merchantApiKey })
-                        )
-                    ),
-                    _react2.default.createElement("br", null),
-                    _react2.default.createElement(
-                        "div",
-                        { className: "row" },
-                        _react2.default.createElement(
-                            "div",
-                            { className: "col-xs-6" },
-                            _react2.default.createElement(
-                                "label",
-                                null,
-                                "Merchant Api Secret:"
-                            )
-                        ),
-                        _react2.default.createElement(
-                            "div",
-                            { className: "col-xs-6" },
-                            _react2.default.createElement("input", { ref: "merchantSecret", onChange: this.updateState.bind(this), id: "merchant-secret-input", type: "text", value: this.state.merchant.merchantApiSecret })
-                        )
-                    ),
-                    _react2.default.createElement("br", null),
-                    _react2.default.createElement(
-                        "div",
-                        { className: "row" },
-                        _react2.default.createElement(
-                            "div",
-                            { className: "col-xs-6" },
-                            _react2.default.createElement(
-                                "label",
-                                null,
-                                "Customer API Key:"
-                            )
-                        ),
-                        _react2.default.createElement(
-                            "div",
-                            { className: "col-xs-6" },
-                            _react2.default.createElement("input", { ref: "customerKey", onChange: this.updateState.bind(this), id: "customer-key-input", type: "text", value: this.state.merchant.customerApiKey })
-                        )
-                    ),
-                    _react2.default.createElement("br", null),
-                    _react2.default.createElement(
-                        "div",
-                        { className: "row" },
-                        _react2.default.createElement(
-                            "div",
-                            { className: "col-xs-6" },
-                            _react2.default.createElement(
-                                "label",
-                                null,
-                                "Customer API Secret:"
-                            )
-                        ),
-                        _react2.default.createElement(
-                            "div",
-                            { className: "col-xs-6" },
-                            _react2.default.createElement("input", { ref: "customerSecret", onChange: this.updateState.bind(this), id: "customer-secret-input", type: "text", value: this.state.merchant.customerApiSecret })
-                        )
-                    ),
-                    _react2.default.createElement("br", null),
-                    _react2.default.createElement(
-                        "div",
-                        { className: "row" },
-                        _react2.default.createElement(
-                            "div",
-                            { className: "col-xs-6" },
-                            _react2.default.createElement(
-                                "label",
-                                null,
-                                "Status"
-                            )
-                        ),
-                        _react2.default.createElement(
-                            "div",
-                            { className: "col-xs-6" },
-                            _react2.default.createElement(
-                                "select",
-                                { onChange: this.updateState.bind(this), ref: "status", value: this.state.merchant.status },
-                                this.state.statuses.map(function (status) {
-                                    return _react2.default.createElement(
-                                        "option",
-                                        { key: status,
-                                            value: status },
-                                        status
-                                    );
-                                })
-                            )
-                        )
-                    ),
-                    _react2.default.createElement("br", null),
-                    _react2.default.createElement("hr", null),
-                    _react2.default.createElement(
-                        "div",
-                        { className: "row" },
-                        _react2.default.createElement("div", { className: "col-xs-3" }),
-                        _react2.default.createElement(
-                            "div",
-                            { className: "col-xs-3" },
-                            _react2.default.createElement(
-                                "button",
-                                { className: "btn btn-primary", onClick: this.postMerchant.bind(this) },
-                                " Submit "
-                            )
-                        ),
-                        _react2.default.createElement(
-                            "div",
-                            { className: "col-xs-3" },
-                            _react2.default.createElement(
-                                "button",
-                                { className: "btn btn-default", onClick: this.closeModal },
-                                "Close"
-                            )
-                        ),
-                        _react2.default.createElement("div", { className: "col-xs-3" })
                     )
                 ),
                 _react2.default.createElement(
@@ -15434,6 +15497,14 @@ var RoleComponent = function (_Component) {
             var offline_transactions = _reactDom2.default.findDOMNode(this.refs.OFFLINE_TRANSACTIONS).checked;
 
             var merchant_id = _reactDom2.default.findDOMNode(this.refs.merchant).value;
+            if (merchant_id == '-1') {
+                this.setState({
+                    updateModalIsOpen: false,
+                    alertIsOpen: true,
+                    message: 'Invalid merchant'
+                });
+                return;
+            }
             var data = {
                 'name': this.state.role.name,
                 'merchantId': merchant_id,
@@ -15523,6 +15594,34 @@ var RoleComponent = function (_Component) {
             });
         }
     }, {
+        key: 'addRole',
+        value: function addRole() {
+
+            var tref = this;
+            _axios2.default.get('/rush-pos-sync/screens', {
+                headers: {
+                    'Content-type': 'application/json'
+                }
+            }).then(function (resp) {
+
+                tref.setState({
+                    updateModalIsOpen: true,
+                    role: {
+                        screens: resp.data
+                    }
+                });
+            }).catch(function (error) {
+                alert(error);
+            });
+        }
+    }, {
+        key: 'closeAlert',
+        value: function closeAlert() {
+            this.setState({
+                alertIsOpen: false
+            });
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this2 = this;
@@ -15530,6 +15629,18 @@ var RoleComponent = function (_Component) {
             return _react2.default.createElement(
                 'div',
                 null,
+                _react2.default.createElement(
+                    _reactModal2.default,
+                    {
+                        isOpen: this.state.alertIsOpen,
+                        onAfterOpen: this.afterOpenAlert,
+                        onRequestClose: this.closeAlert.bind(this),
+                        style: customStyles,
+                        contentLabel: 'Example Modal'
+                    },
+                    ' ',
+                    this.state.message
+                ),
                 _react2.default.createElement(
                     _reactModal2.default,
                     {
@@ -15615,7 +15726,7 @@ var RoleComponent = function (_Component) {
                                 { className: 'col-xs-3' },
                                 _react2.default.createElement(
                                     'button',
-                                    { className: 'btn btn-default prim-btn', onClick: this.postRole.bind(this) },
+                                    { className: 'btn btn-default prim-btn', onClick: this.closeUpdateModal.bind(this) },
                                     'Cancel'
                                 )
                             )
@@ -15670,7 +15781,7 @@ var RoleComponent = function (_Component) {
                         { className: 'col-xs-2' },
                         _react2.default.createElement(
                             'button',
-                            { className: 'btn btn-primary prim-btn', onClick: this.postRole.bind(this) },
+                            { className: 'btn btn-primary prim-btn', onClick: this.addRole.bind(this) },
                             'Add'
                         )
                     )

@@ -112,6 +112,14 @@ class RoleComponent extends Component {
 
 
         let merchant_id = ReactDOM.findDOMNode(this.refs.merchant).value;
+        if (merchant_id == '-1') {
+            this.setState({
+                updateModalIsOpen: false,
+                alertIsOpen: true,
+                message: 'Invalid merchant'
+            })
+            return;
+        }
         let data = {
             'name': this.state.role.name,
             'merchantId': merchant_id,
@@ -220,11 +228,46 @@ class RoleComponent extends Component {
         })
     }
 
+    addRole() {
+
+        let tref = this;
+        axios.get('/rush-pos-sync/screens', {
+            headers: {
+                'Content-type': 'application/json'
+            }
+        }).then(function(resp) {
+
+            tref.setState({
+                updateModalIsOpen: true,
+                role: {
+                    screens: resp.data
+                }
+            });
+        }).catch(function(error) {
+            alert(error);
+        });
+
+    }
+
+
+    closeAlert() {
+        this.setState({
+            alertIsOpen: false
+        })
+    }
 
 
     render() {
         return (
             <div>
+                <Modal
+                    isOpen={this.state.alertIsOpen}
+                    onAfterOpen={this.afterOpenAlert}
+                    onRequestClose={this.closeAlert.bind(this)}
+                    style=  {customStyles}
+                    contentLabel="Example Modal"
+                > {this.state.message}
+                </Modal>
                 <Modal
                     isOpen={this.state.updateModalIsOpen}
                     onRequestClose={this.closeUpdateModal.bind(this)}
@@ -272,7 +315,7 @@ class RoleComponent extends Component {
                                 <button className="btn btn-primary prim-btn" onClick={this.postRole.bind(this)}>Submit</button>
                             </div>
                             <div className="col-xs-3">
-                                <button className="btn btn-default prim-btn" onClick={this.postRole.bind(this)}>Cancel</button>
+                                <button className="btn btn-default prim-btn" onClick={this.closeUpdateModal.bind(this)}>Cancel</button>
                             </div>
                         </div>
                     </div>
@@ -299,7 +342,7 @@ class RoleComponent extends Component {
                         <button className="btn btn-primary prim-btn" onClick={this.getRoles.bind(this)}>Search</button>
                     </div>
                     <div className="col-xs-2">
-                        <button className="btn btn-primary prim-btn" onClick={this.postRole.bind(this)}>Add</button>
+                        <button className="btn btn-primary prim-btn" onClick={this.addRole.bind(this)}>Add</button>
                     </div>
 
                 </div>

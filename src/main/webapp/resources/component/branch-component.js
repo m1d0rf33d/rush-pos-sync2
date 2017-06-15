@@ -27,7 +27,8 @@ class BranchComponent extends Component {
         this.state = {
             merchants : [],
             branches : [],
-            branch: {}
+            branch: {},
+            alertIsOpen: false
         }
     }
 
@@ -119,6 +120,12 @@ class BranchComponent extends Component {
         })
     }
 
+    closeModal() {
+        this.setState({
+            updateModalIsOpen: false
+        })
+    }
+
     updateBranch() {
         let data =  {
             'branchName': this.state.branch.branchName,
@@ -143,8 +150,9 @@ class BranchComponent extends Component {
         axios(postConfig)
             .then(function (response) {
                 tref.setState({
-                    message: 'Branch updated',
-                    updateModalIsOpen: false
+                    message: 'Success!',
+                    updateModalIsOpen: false,
+                    alertIsOpen: true
                 });
 
                 tref.getBranches();
@@ -158,9 +166,23 @@ class BranchComponent extends Component {
         this.openModal();
     }
 
+    closeAlert() {
+        this.setState({
+            alertIsOpen: false
+        })
+    }
+
     render() {
         return (
             <div>
+                <Modal
+                    isOpen={this.state.alertIsOpen}
+                    onAfterOpen={this.afterOpenAlert}
+                    onRequestClose={this.closeAlert.bind(this)}
+                    style=  {customStyles}
+                    contentLabel="Example Modal"
+                > {this.state.message}
+                </Modal>
                 <Modal
                     isOpen={this.state.updateModalIsOpen}
                     onRequestClose={this.closeUpdateModal.bind(this)}
@@ -178,7 +200,7 @@ class BranchComponent extends Component {
                                 <label>Name:</label>
                             </div>
                             <div className="col-xs-6">
-                                <input disabled onChange={this.updateValue.bind(this)} value={this.state.branch.branchName} ref="name" id="name-input"  type="text"/>
+                                <input className="prim-input" disabled onChange={this.updateValue.bind(this)} value={this.state.branch.branchName} ref="name" id="name-input"  type="text"/>
                             </div>
                         </div><br/>
                         <div className="row">
@@ -186,7 +208,7 @@ class BranchComponent extends Component {
                                 <label>Virtual Keyboard:</label>
                             </div>
                             <div className="col-xs-6">
-                                <select onChange={this.updateValue.bind(this)} ref="withVk" value={this.state.branch.withVk}>
+                                <select className="prim-select" onChange={this.updateValue.bind(this)} ref="withVk" value={this.state.branch.withVk}>
                                     <option value="on">ON</option>
                                     <option value="off">OFF</option>
                                 </select>
@@ -199,10 +221,10 @@ class BranchComponent extends Component {
                             <div className="col-xs-3">
                             </div>
                             <div className="col-xs-3">
-                                <button className="btn btn-primary" onClick={this.updateBranch.bind(this)}> Submit </button>
+                                <button className="btn btn-primary prim-btn" onClick={this.updateBranch.bind(this)}> Submit </button>
                             </div>
                             <div className="col-xs-3">
-                                <button className="btn btn-default" onClick={this.closeModal}>Close</button>
+                                <button className="btn btn-default prim-btn" onClick={this.closeModal.bind(this)}>Close</button>
                             </div>
                             <div className="col-xs-3">
                             </div>

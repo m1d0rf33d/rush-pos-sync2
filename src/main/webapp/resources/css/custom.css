@@ -70,8 +70,8 @@ li {
 }
 
 .branch-modal {
-	width: 400px;
-	min-width: 400px;
+	width: 600px;
+	min-width: 600px;
 	height: 200px;
 	min-height: 200px;
 }
@@ -84,6 +84,13 @@ li {
 }
 
 .prim-select {
+	width: 200px;
+	min-width:200px;
+	height: 30px;
+	min-height:30px;
+}
+
+.prim-input {
 	width: 200px;
 	min-width:200px;
 	height: 30px;
@@ -111,7 +118,30 @@ li {
 
 .role-modal {
 	width: 600px;
-	min-width:400px;
+	min-width:600px;
 	height:400px;
 	min-height:400px;
+}
+
+.merchant-modal {
+	width: 600px;
+	min-width:600px;
+	height:400px;
+	min-height:400px;
+}
+
+body {
+	background: #eaeaea!important
+}
+
+label {
+	font-variant: normal;font-family: 'Orbitron';
+}
+
+a {
+	font-variant: normal;font-family: 'Orbitron';
+}
+
+button {
+	font-variant: normal;font-family: 'Orbitron';
 }

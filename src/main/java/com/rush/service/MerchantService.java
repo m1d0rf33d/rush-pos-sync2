@@ -438,6 +438,7 @@ public class MerchantService {
             role = roleRepository.findOne(roleDTO.getRoleId());
         }
         role.setName(roleDTO.getName());
+        role.setMerchant(merchant);
         role = roleRepository.save(role);
         final Role r = role;
         //clear access

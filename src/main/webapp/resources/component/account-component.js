@@ -35,7 +35,8 @@ class AccountComponent extends Component {
             merchants: [],
             user: {},
             roles: [],
-            updateModalIsOpen: false
+            updateModalIsOpen: false,
+            alertIsOpen: false
         }
 
 
@@ -120,6 +121,14 @@ class AccountComponent extends Component {
             'uuid': this.state.user.uuid,
             'roleId': this.state.user.roleId
         }
+        if (data.roleId == '-1' || data.roleId == undefined) {
+            this.setState({
+                message: 'Invalid role',
+                updateModalIsOpen: false,
+                alertIsOpen: true
+            })
+            return;
+        }
 
 
         let postConfig = {
@@ -180,10 +189,23 @@ class AccountComponent extends Component {
         })
     }
 
+    closeAlert() {
+        this.setState({
+            alertIsOpen: false
+        })
+    }
+
     render() {
         return (
             <div>
-
+                <Modal
+                    isOpen={this.state.alertIsOpen}
+                    onAfterOpen={this.afterOpenAlert}
+                    onRequestClose={this.closeAlert.bind(this)}
+                    style=  {customStyles}
+                    contentLabel="Example Modal"
+                > {this.state.message}
+                </Modal>
                 <Modal
                     isOpen={this.state.updateModalIsOpen}
                     onRequestClose={this.closeUpdateModal.bind(this)}
@@ -200,7 +222,7 @@ class AccountComponent extends Component {
                                 Name
                             </div>
                             <div className="col-xs-6">
-                                <input type="text" disabled value={this.state.user.name} />
+                                <input className="prim-input" type="text" disabled value={this.state.user.name} />
                             </div>
                         </div>
                         <br/>
@@ -209,7 +231,7 @@ class AccountComponent extends Component {
                                 Role
                             </div>
                             <div className="col-xs-6">
-                                <select onChange={this.updateValue.bind(this)} ref="role" value={this.state.user.roleId} required>
+                                <select className="prim-select" onChange={this.updateValue.bind(this)} ref="role" value={this.state.user.roleId} required>
                                     <option value="-1">--select--</option>
                                     {
                                         this.state.roles.map(function(role) {
@@ -229,7 +251,7 @@ class AccountComponent extends Component {
                             </div>
                             <div className="col-xs-1"></div>
                             <div className="col-xs-3">
-                                <button className="btn btn-default prim-btn">Cancel</button>
+                                <button onClick={this.closeUpdateModal.bind(this)} className="btn btn-default prim-btn">Cancel</button>
                             </div>
                             <div className="col-xs-2">
                             </div>
