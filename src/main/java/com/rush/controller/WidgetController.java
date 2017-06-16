@@ -1,11 +1,9 @@
 package com.rush.controller;
 
-import com.rush.model.ApiResponse;
-import com.rush.model.WidgetResponse;
-import com.rush.model.dto.LoginDTO;
-import com.rush.model.dto.LoginMemberDTO;
+import com.rush.service.LoggingService;
 import com.rush.service.widget.MemberService;
 import com.rush.service.widget.WidgetService;
+import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +18,7 @@ public class WidgetController {
     private WidgetService widgetService;
     @Autowired
     private MemberService memberService;
+
 
     @RequestMapping(value = "/initialize/{merchantKey}", method = RequestMethod.GET)
     public JSONObject initializeWidget(@PathVariable String merchantKey) {
