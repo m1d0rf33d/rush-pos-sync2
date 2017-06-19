@@ -5,7 +5,7 @@ class HelloComponent extends Component {
 
     render() {
         return (
-          <div> Hello :) </div>
+          <div> Migrated site from Angular JS to React JS, apache2 server to tomcat server. Functions should stay the same please notify developer if problems are encountered. </div>
         );
     }
 }

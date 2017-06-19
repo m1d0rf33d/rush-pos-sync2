@@ -4,6 +4,7 @@ import com.rush.model.ApiResponse;
 import com.rush.model.dto.*;
 import com.rush.model.enums.MerchantStatus;
 import com.rush.model.enums.Screen;
+import com.rush.service.FileReaderService;
 import com.rush.service.MerchantService;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,8 @@ public class WebResource {
 
     @Autowired
     private MerchantService merchantService;
+    @Autowired
+    private FileReaderService fileReaderService;
 
     @RequestMapping(value = "/merchant", method = RequestMethod.GET)
     public ResponseEntity<List<MerchantDTO>> getMerchants() {
@@ -79,5 +82,10 @@ public class WebResource {
             screenDTOs.add(screenDTO);
         });
         return new ResponseEntity<>(screenDTOs, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/logs", method = RequestMethod.GET)
+    public ResponseEntity<List<String>> getLogs() {
+        return new ResponseEntity<List<String>>(fileReaderService.getLogs(), HttpStatus.OK);
     }
 }

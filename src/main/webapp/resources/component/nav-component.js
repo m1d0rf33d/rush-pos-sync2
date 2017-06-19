@@ -24,7 +24,7 @@ class NavComponent extends Component {
                             </label>
                         </div>
                         <ul className="nav navbar-nav navbar-right">
-                            <li><a   className="logout-link" href="http://localhost:8080/rush-pos-sync/logout">Logout</a></li>
+                            <li><a   className="logout-link" href="http://52.74.203.202:8080/rush-pos-sync/logout">Logout</a></li>
                         </ul>
                     </div>
                 </nav>

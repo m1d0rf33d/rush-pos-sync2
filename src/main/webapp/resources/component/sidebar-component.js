@@ -35,6 +35,11 @@ class SidebarComponent extends Component {
                                 Roles
                             </Link>
                         </li>
+                        <li className={this.props.activeButton == 'logs-li' ? 'active' : 'inactive'} onClick={() => this.props.updateActiveButton('logs-li')}>
+                            <Link to="/logs">
+                                Logs
+                            </Link>
+                        </li>
 
                     </ul>
                 </div>

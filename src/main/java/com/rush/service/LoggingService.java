@@ -21,16 +21,17 @@ public class LoggingService {
 
     }
 
-    @Around("widgetPointCut()")
-    public void logWidgetAccess(ProceedingJoinPoint joinPoint) {
+    @After("widgetPointCut()")
+    public void logWidgetAccess(JoinPoint joinPoint) {
        try {
            LOG.info("Entered -> " + joinPoint.getSignature().getName());
-           LOG.info("Arguments -> ");
+           StringBuilder sb = new StringBuilder();
+           sb.append("Arguments -> ");
            Object[] args = joinPoint.getArgs();
-           LOG.info(String.valueOf(args));
-           LOG.info("Response -> ");
-    //       LOG.info(String.valueOf(joinPoint.proceed()));
-           joinPoint.proceed();
+           Arrays.asList(args).forEach(arg -> {
+               sb.append(arg);
+           });
+           LOG.info(sb.toString());
        } catch (Throwable throwable) {
            throwable.printStackTrace();
        }

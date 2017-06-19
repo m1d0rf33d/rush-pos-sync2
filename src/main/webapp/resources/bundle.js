@@ -14756,7 +14756,7 @@ var HelloComponent = function (_Component) {
             return _react2.default.createElement(
                 'div',
                 null,
-                ' Hello :) '
+                ' Migrated site from Angular JS to React JS, apache2 server to tomcat server. Functions should stay the same please notify developer if problems are encountered. '
             );
         }
     }]);
@@ -15311,7 +15311,7 @@ var NavComponent = function (_Component) {
                                 null,
                                 _react2.default.createElement(
                                     'a',
-                                    { className: 'logout-link', href: 'http://localhost:8080/rush-pos-sync/logout' },
+                                    { className: 'logout-link', href: 'http://52.74.203.202:8080/rush-pos-sync/logout' },
                                     'Logout'
                                 )
                             )
@@ -15909,6 +15909,17 @@ var SidebarComponent = function (_Component) {
                                 { to: '/role' },
                                 'Roles'
                             )
+                        ),
+                        _react2.default.createElement(
+                            'li',
+                            { className: this.props.activeButton == 'logs-li' ? 'active' : 'inactive', onClick: function onClick() {
+                                    return _this2.props.updateActiveButton('logs-li');
+                                } },
+                            _react2.default.createElement(
+                                _reactRouterDom.Link,
+                                { to: '/logs' },
+                                'Logs'
+                            )
                         )
                     )
                 )
@@ -15980,6 +15991,10 @@ var _roleComponent = __webpack_require__(133);
 
 var _roleComponent2 = _interopRequireDefault(_roleComponent);
 
+var _logsComponent = __webpack_require__(314);
+
+var _logsComponent2 = _interopRequireDefault(_logsComponent);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -16031,7 +16046,8 @@ var HomeComponent = function (_Component) {
 										_react2.default.createElement(_reactRouterDom.Route, { path: "/merchant", component: _merchantComponent2.default }),
 										_react2.default.createElement(_reactRouterDom.Route, { path: "/branch", component: _branchComponent2.default }),
 										_react2.default.createElement(_reactRouterDom.Route, { path: "/account", component: _accountComponent2.default }),
-										_react2.default.createElement(_reactRouterDom.Route, { path: "/role", component: _roleComponent2.default })
+										_react2.default.createElement(_reactRouterDom.Route, { path: "/role", component: _roleComponent2.default }),
+										_react2.default.createElement(_reactRouterDom.Route, { path: "/logs", component: _logsComponent2.default })
 									)
 								)
 							)
@@ -47395,6 +47411,106 @@ exports.default = function () {
         thumbnail: "http://i.imgur.com/4EMtxHB.png"
     }];
 };
+
+/***/ }),
+/* 314 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(4);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _axios = __webpack_require__(35);
+
+var _axios2 = _interopRequireDefault(_axios);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var LogsComponent = function (_Component) {
+    _inherits(LogsComponent, _Component);
+
+    function LogsComponent() {
+        _classCallCheck(this, LogsComponent);
+
+        var _this = _possibleConstructorReturn(this, (LogsComponent.__proto__ || Object.getPrototypeOf(LogsComponent)).call(this));
+
+        _this.state = {
+            logs: []
+        };
+        return _this;
+    }
+
+    _createClass(LogsComponent, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            this.fetchLogs();
+        }
+    }, {
+        key: 'fetchLogs',
+        value: function fetchLogs() {
+            var tref = this;
+            _axios2.default.get('/rush-pos-sync/logs', {
+                headers: {
+                    'Content-type': 'application/json'
+                }
+            }).then(function (resp) {
+                tref.setState({
+                    logs: resp.data
+                });
+            }).catch(function (error) {
+                alert(error);
+            });
+        }
+    }, {
+        key: 'render',
+        value: function render() {
+            return _react2.default.createElement(
+                'div',
+                null,
+                _react2.default.createElement(
+                    'div',
+                    { className: 'row' },
+                    _react2.default.createElement(
+                        'label',
+                        { className: 'prim-label' },
+                        'LOGS'
+                    )
+                ),
+                _react2.default.createElement('hr', null),
+                _react2.default.createElement(
+                    'div',
+                    { className: 'row logs-div' },
+                    this.state.logs.map(function (log) {
+                        return _react2.default.createElement(
+                            'p',
+                            null,
+                            log
+                        );
+                    })
+                )
+            );
+        }
+    }]);
+
+    return LogsComponent;
+}(_react.Component);
+
+exports.default = LogsComponent;
 
 /***/ })
 /******/ ]);
