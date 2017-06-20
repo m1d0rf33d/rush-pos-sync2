@@ -65,7 +65,8 @@ public class TokenService {
 
             CloseableHttpClient httpClient = HttpClientBuilder.create().build();
             String url = widgetHost + widgetAuthEndpoint;
-            url = url.replace(":username", "admin").replace(":password", "admin");
+            //This is so bad hahahahaha
+            url = url.replace(":username", "rushadmin").replace(":password", "12345678");
             url = url.replace(":clientId", merchant.getClientId());
 
             String str = merchant.getClientId() + ":" + merchant.getClientSecret();
