@@ -15,11 +15,14 @@ import java.util.stream.Stream;
 @Service
 public class FileReaderService {
 
-    private static String fileName = "Rush.log";
+    private  String rushLog = "Rush.log";
+    private  String rushErrorLog = "RushError.log";
 
 
-    public List<String> getLogs() {
+    public List<String> getLogs(String type) {
         List<String> logs = new ArrayList<>();
+
+        String fileName = type.equals("error") ? rushErrorLog : rushLog;
 
         String catalinaHome = System.getProperty("catalina.home");
         String folder = "/logs/";

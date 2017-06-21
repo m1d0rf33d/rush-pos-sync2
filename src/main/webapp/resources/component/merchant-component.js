@@ -35,7 +35,9 @@ class MerchantComponent extends Component {
             merchants: [],
             alertIsOpen: false,
             statuses: [],
-            merchant: {}
+            merchant: {},
+            classifications: [],
+            merchantTypes: []
         };
 
         this.openModal      = this.openModal.bind(this);
@@ -56,7 +58,9 @@ class MerchantComponent extends Component {
     }
 
     openModal() {
-        this.fetchStatus();
+        this.setState({
+            modalIsOpen: true
+        })
     }
 
     afterOpenModal() {
@@ -82,7 +86,10 @@ class MerchantComponent extends Component {
                 customerApiKey: ReactDOM.findDOMNode(this.refs.customerKey).value,
                 customerApiSecret: ReactDOM.findDOMNode(this.refs.customerSecret).value,
                 id: this.state.merchant.id,
-                status: ReactDOM.findDOMNode(this.refs.status).value
+                status: ReactDOM.findDOMNode(this.refs.status).value,
+                type: ReactDOM.findDOMNode(this.refs.type).value,
+                classification: ReactDOM.findDOMNode(this.refs.classification).value,
+                withVk: ReactDOM.findDOMNode(this.refs.withVk).value
             }
         })
     }
@@ -90,6 +97,9 @@ class MerchantComponent extends Component {
     componentDidMount() {
 
         this.fetchMerchants();
+        this.fetchStatus();
+        this.fetchClassifications();
+        this.fetchTypes();
 
     }
 
@@ -102,7 +112,10 @@ class MerchantComponent extends Component {
                 'merchantApiSecret': this.state.merchant.merchantApiSecret,
                 'customerApiKey': this.state.merchant.customerApiKey,
                 'customerApiSecret': this.state.merchant.customerApiSecret,
-                'status': this.state.merchant.status
+                'status': this.state.merchant.status,
+                'merchantType': this.state.merchant.type,
+                'classification': this.state.merchant.classification,
+                'withVk': this.state.merchant.withVk
         }
         console.log(this.state.merchant);
 
@@ -159,8 +172,7 @@ class MerchantComponent extends Component {
             }
         }).then(function(resp) {
             tref.setState({
-                 statuses: resp.data,
-                 modalIsOpen: true
+                 statuses: resp.data
             });
 
         }).catch(function(error) {
@@ -168,8 +180,44 @@ class MerchantComponent extends Component {
         });
     }
 
-    onRowClick(rowIdx, row) {
+    fetchTypes() {
+        let tref = this;
 
+        axios.get('/rush-pos-sync/merchant/types', {
+            headers: {
+                'Content-type': 'application/json'
+            }
+        }).then(function(resp) {
+            tref.setState({
+                merchantTypes: resp.data
+            });
+
+        }).catch(function(error) {
+            alert(error);
+        });
+    }
+
+
+    fetchClassifications() {
+        let tref = this;
+
+        axios.get('/rush-pos-sync/merchant/classifications', {
+            headers: {
+                'Content-type': 'application/json'
+            }
+        }).then(function(resp) {
+            tref.setState({
+                classifications: resp.data
+            });
+
+        }).catch(function(error) {
+            alert(error);
+        });
+    }
+
+
+    onRowClick(rowIdx, row) {
+        console.log(row);
         this.setState({
 
             merchant: {
@@ -179,10 +227,13 @@ class MerchantComponent extends Component {
                 merchantApiSecret: row.merchantApiSecret,
                 customerApiKey: row.customerApiKey,
                 customerApiSecret: row.customerApiSecret,
-                status: row.status
-            }
+                status: row.status,
+                type: row.merchantType,
+                classification: row.classification,
+                withVk: row.withVk
+            },
+            modalIsOpen: true
         });
-        this.openModal();
     }
 
     render() {
@@ -256,12 +307,62 @@ class MerchantComponent extends Component {
                             </div>
                             <div className="col-xs-6">
                                 <select className="prim-select" onChange={this.updateState.bind(this)} ref="status" value={this.state.merchant.status} >
+                                    <option value="-1">--select--</option>
                                     {
                                         this.state.statuses.map(function(status) {
                                             return <option key={status}
                                                            value={status}>{status}</option>;
                                         })
                                     }
+                                </select>
+                            </div>
+                        </div><br/>
+
+
+                        <div className="row">
+                            <div className="col-xs-6">
+                                <label>Type</label>
+                            </div>
+                            <div className="col-xs-6">
+                                <select className="prim-select" onChange={this.updateState.bind(this)} ref="type" value={this.state.merchant.type} >
+                                    <option value="-1">--select--</option>
+                                    {
+                                        this.state.merchantTypes.map(function(type) {
+                                            return <option key={type}
+                                                           value={type}>{type}</option>;
+                                        })
+                                    }
+                                </select>
+                            </div>
+                        </div><br/>
+
+
+                        <div className="row">
+                            <div className="col-xs-6">
+                                <label>Classification</label>
+                            </div>
+                            <div className="col-xs-6">
+                                <select className="prim-select" onChange={this.updateState.bind(this)} ref="classification" value={this.state.merchant.classification} >
+                                    <option value="-1">--select--</option>
+                                    {
+                                        this.state.classifications.map(function(classification) {
+                                            return <option key={classification}
+                                                           value={classification}>{classification}</option>;
+                                        })
+                                    }
+                                </select>
+                            </div>
+                        </div><br/>
+
+                        <div className="row">
+                            <div className="col-xs-6">
+                                <label>Virtual Keyboard</label>
+                            </div>
+                            <div className="col-xs-6">
+                                <select className="prim-select" onChange={this.updateState.bind(this)} ref="withVk" value={this.state.merchant.withVk} >
+                                    <option value="-1">--select--</option>
+                                    <option value="true">ON</option>
+                                    <option value="false">OFF</option>
                                 </select>
                             </div>
                         </div><br/>
@@ -288,17 +389,15 @@ class MerchantComponent extends Component {
                 <hr/>
                 <div className="row">
                     <div className="col-xs-2">
-                        <button className="btn btn-primary merchant-add-btn prim-btn" onClick={this.openModal}>Add</button>
+                        <button className="btn btn-primary merchant-add-btn prim-btn" onClick={this.openModal.bind(this)}>Add</button>
                     </div>
                 </div>
                 <br/>
 
                 <ReactDataGrid
                     columns={[{ resizable: true,key: 'name', name: 'Name' },
-                     { resizable: true, key: 'merchantApiKey', name: 'Merchant Key' },
-                     { resizable: true, key: 'merchantApiSecret', name: 'Merchant Secret' },
-                     { resizable: true, key: 'customerApiKey', name: 'Customer Key' },
-                     { resizable: true, key: 'customerApiSecret', name: 'Customer Secret' },
+                     { resizable: true, key: 'merchantType', name: 'Type' },
+                     { resizable: true, key: 'classification', name: 'Classification' },
                      { resizable: true, key: 'status', name: 'Status' }]}
                     rowGetter={rowNumber =>  this.state.merchants[rowNumber] }
                     rowsCount={this.state.merchants.length}

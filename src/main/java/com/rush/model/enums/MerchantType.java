@@ -4,7 +4,7 @@ package com.rush.model.enums;
  * Created by aomine on 2/28/17.
  */
 public enum MerchantType {
-    LOYALTY("loyalty"), PUNCHCARD("punchard");
+    LOYALTY("loyalty"), PUNCHCARD("punchcard");
 
     private String value;
 

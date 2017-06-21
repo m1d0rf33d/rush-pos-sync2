@@ -7,24 +7,41 @@ class LogsComponent extends Component {
     constructor() {
         super();
         this.state = {
-            logs: []
+            errorLogs: [],
+            accessLogs: []
         }
     }
 
     componentDidMount() {
         this.fetchLogs();
+        this.fetchErrorLogs();
     }
 
     fetchLogs() {
         let tref = this;
-        axios.get('/rush-pos-sync/logs', {
+        axios.get('/rush-pos-sync/logs?type=access', {
             headers: {
                 'Content-type': 'application/json'
             }
         }).then(function(resp) {
             tref.setState({
-                logs: resp.data
-            });
+                accessLogs: resp.data
+            })
+        }).catch(function(error) {
+            alert(error);
+        });
+    }
+
+    fetchErrorLogs() {
+        let tref = this;
+        axios.get('/rush-pos-sync/logs?type=error', {
+            headers: {
+                'Content-type': 'application/json'
+            }
+        }).then(function(resp) {
+            tref.setState({
+                errorLogs: resp.data
+            })
         }).catch(function(error) {
             alert(error);
         });
@@ -35,13 +52,27 @@ class LogsComponent extends Component {
         return (
           <div>
               <div className="row">
-                  <label className="prim-label">LOGS</label>
+                  <label className="prim-label">ACCESS LOGS</label>
               </div>
-              <hr/>
+
               <div className="row logs-div">
                   {
-                      this.state.logs.map(function(log) {
+                      this.state.accessLogs.map(function(log) {
                         return <p>{log}</p>;
+                      })
+                  }
+
+              </div>
+              <br/>
+
+              <div className="row">
+                  <label className="prim-label">ERROR LOGS</label>
+              </div>
+
+              <div className="row error-logs-div">
+                  {
+                      this.state.errorLogs.map(function(log) {
+                          return <p>{log}</p>;
                       })
                   }
 

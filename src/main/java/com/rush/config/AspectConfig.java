@@ -1,5 +1,6 @@
 package com.rush.config;
 
+import com.rush.service.ErrorLogger;
 import com.rush.service.LoggingService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +13,10 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @EnableAspectJAutoProxy
 public class AspectConfig {
 
+    @Bean
+    public ErrorLogger errorLogger() {
+        return new ErrorLogger();
+    }
 
     @Bean
     public LoggingService loggingService() {

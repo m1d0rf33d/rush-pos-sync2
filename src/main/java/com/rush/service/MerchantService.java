@@ -2,10 +2,7 @@ package com.rush.service;
 
 import com.rush.model.*;
 import com.rush.model.dto.*;
-import com.rush.model.enums.MerchantClassification;
-import com.rush.model.enums.MerchantStatus;
-import com.rush.model.enums.RushTokenType;
-import com.rush.model.enums.Screen;
+import com.rush.model.enums.*;
 import com.rush.repository.*;
 import com.rush.service.widget.TokenService;
 import org.apache.http.NameValuePair;
@@ -99,6 +96,9 @@ public class MerchantService {
         } else {
             merchant.setStatus(MerchantStatus.INACTIVE);
         }
+        merchant.setWithVk(merchantDTO.getWithVk());
+        merchant.setMerchantClassification(MerchantClassification.valueOf(merchantDTO.getClassification()));
+        merchant.setMerchantType(MerchantType.valueOf(merchantDTO.getMerchantType()));
         merchantRepository.save(merchant);
 
         ApiResponse apiResponse = new ApiResponse();
@@ -116,6 +116,9 @@ public class MerchantService {
         merchantDTO.setMerchantApiSecret(merchant.getMerchantApiSecret());
         merchantDTO.setCustomerApiKey(merchant.getCustomerApiKey());
         merchantDTO.setCustomerApiSecret(merchant.getCustomerApiSecret());
+        merchantDTO.setWithVk(merchant.getWithVk());
+        merchantDTO.setMerchantType(merchant.getMerchantType().toString());
+        merchantDTO.setClassification(merchant.getMerchantClassification().toString());
         return merchantDTO;
     }
 

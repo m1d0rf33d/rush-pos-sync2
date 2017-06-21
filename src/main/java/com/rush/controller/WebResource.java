@@ -2,7 +2,9 @@ package com.rush.controller;
 
 import com.rush.model.ApiResponse;
 import com.rush.model.dto.*;
+import com.rush.model.enums.MerchantClassification;
 import com.rush.model.enums.MerchantStatus;
+import com.rush.model.enums.MerchantType;
 import com.rush.model.enums.Screen;
 import com.rush.service.FileReaderService;
 import com.rush.service.MerchantService;
@@ -85,7 +87,17 @@ public class WebResource {
     }
 
     @RequestMapping(value = "/logs", method = RequestMethod.GET)
-    public ResponseEntity<List<String>> getLogs() {
-        return new ResponseEntity<List<String>>(fileReaderService.getLogs(), HttpStatus.OK);
+    public ResponseEntity<List<String>> getLogs(@RequestParam(value = "type") String type) {
+        return new ResponseEntity<>(fileReaderService.getLogs(type), HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/merchant/types", method = RequestMethod.GET)
+    public ResponseEntity<List<MerchantType>> getMerchantTypes() {
+        return new ResponseEntity<>(Arrays.asList(MerchantType.values()), HttpStatus.OK);
+    }
+    @RequestMapping(value = "/merchant/classifications", method = RequestMethod.GET)
+    public ResponseEntity<List<MerchantClassification>> getMerchantClassifications() {
+        return new ResponseEntity<>(Arrays.asList(MerchantClassification.values()), HttpStatus.OK);
+    }
+
 }

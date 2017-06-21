@@ -48,7 +48,7 @@ public class MerchantApiService {
         if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
             return globeSgService.getBranches(merchant);
         } else {
-            String url   = rushHost + branchesEndpoint.replace(":merchant_type", merchant.getMerchantType());
+            String url   = rushHost + branchesEndpoint.replace(":merchant_type", merchant.getMerchantType().getValue());
             String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
 
             try {
@@ -78,7 +78,7 @@ public class MerchantApiService {
             } else {
                 endpoint = merchantDesignEndpoint;
             }
-            String url = rushHost + endpoint.replace(":merchant_type", merchant.getMerchantType());
+            String url = rushHost + endpoint.replace(":merchant_type", merchant.getMerchantType().getValue());
             String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
             JSONObject jsonObject = apiService.call(url, new ArrayList<>(), "get", token);
             if (jsonObject != null) {

@@ -38,8 +38,8 @@ public class Merchant {
     private String clientSecret;
     @Column
     private Boolean withVk;
-    @Column
-    private String merchantType;
+    @Enumerated(EnumType.STRING)
+    private MerchantType merchantType;
     @Enumerated(EnumType.STRING)
     private MerchantClassification merchantClassification;
 
@@ -51,11 +51,11 @@ public class Merchant {
         this.merchantClassification = merchantClassification;
     }
 
-    public String getMerchantType() {
+    public MerchantType getMerchantType() {
         return merchantType;
     }
 
-    public void setMerchantType(String merchantType) {
+    public void setMerchantType(MerchantType merchantType) {
         this.merchantType = merchantType;
     }
 

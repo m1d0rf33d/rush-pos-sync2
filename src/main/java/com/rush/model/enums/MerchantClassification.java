@@ -5,5 +5,15 @@ package com.rush.model.enums;
  */
 public enum MerchantClassification {
 
-    BASIC, GLOBE_SG;
+    BASIC("basic"), GLOBE_SG("globe_sg");
+
+    private String value;
+
+    private MerchantClassification(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return this.value;
+    }
 }

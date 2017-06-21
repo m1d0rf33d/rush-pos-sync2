@@ -69,7 +69,7 @@ public class EmployeeService {
              } else {
                  endpoint = loginEmployeeEndpoint;
              }
-             String url = rushHost + endpoint.replace(":merchant_type", merchant.getMerchantType());
+             String url = rushHost + endpoint.replace(":merchant_type", merchant.getMerchantType().getValue());
              JSONObject jsonObject = apiService.call((url), params, "post", token);
              if (jsonObject != null) {
                  String errorCode = (String) jsonObject.get("error_code");
