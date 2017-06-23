@@ -8,6 +8,7 @@ import com.rush.model.enums.MerchantType;
 import com.rush.model.enums.Screen;
 import com.rush.service.FileReaderService;
 import com.rush.service.MerchantService;
+import com.rush.service.UserService;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,8 @@ public class WebResource {
     private MerchantService merchantService;
     @Autowired
     private FileReaderService fileReaderService;
+    @Autowired
+    private UserService userService;
 
     @RequestMapping(value = "/merchant", method = RequestMethod.GET)
     public ResponseEntity<List<MerchantDTO>> getMerchants() {
@@ -100,4 +103,8 @@ public class WebResource {
         return new ResponseEntity<>(Arrays.asList(MerchantClassification.values()), HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/user/history", method = RequestMethod.GET)
+    public ResponseEntity<List<UserHistoryDTO>> getUserHistory() {
+        return new ResponseEntity<>(userService.getUserHistories(), HttpStatus.OK);
+    }
 }

@@ -41,6 +41,12 @@ class SidebarComponent extends Component {
                             </Link>
                         </li>
 
+                        <li className={this.props.activeButton == 'history-li' ? 'active' : 'inactive'} onClick={() => this.props.updateActiveButton('history-li')}>
+                            <Link to="/history">
+                                History
+                            </Link>
+                        </li>
+
                     </ul>
                 </div>
             </div>

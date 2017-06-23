@@ -110,7 +110,7 @@ public class MemberService {
             } else {
                 endpoint = loginMemberEndpoint;
             }
-            String url = rushHost + endpoint.replace(":merchant_type", merchant.getMerchantType().getValue());
+            String url = rushHost + endpoint.replace(":merchant_type", merchant.getMerchantType().getValue().toLowerCase());
             url = url.replace(":employee_id", employeeId);
             String token = tokenService.getRushtoken(merchantKey, RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
             try {
@@ -206,7 +206,7 @@ public class MemberService {
             String merchantKey = merchant.getUniqueKey();
             String token = tokenService.getRushtoken(merchantKey, RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
 
-            String url = rushHost + endpoint.replace(":merchant_type", merchant.getMerchantType().getValue());
+            String url = rushHost + endpoint.replace(":merchant_type", merchant.getMerchantType().getValue().toLowerCase());
             url = url.replace(":customer_id", customerId);
             url = url.replace(":employee_id", employeeId);
             JSONObject jsonObject = apiService.call(url, null, "get", token);
@@ -263,7 +263,7 @@ public class MemberService {
                 endpoint = registerMemberEndpoint;
             }
             String url = rushHost + endpoint;
-            url = url.replace(":employee_id", employeeId).replace(":merchant_type", merchant.getMerchantType().getValue());
+            url = url.replace(":employee_id", employeeId).replace(":merchant_type", merchant.getMerchantType().getValue().toLowerCase());
 
             try {
                 JSONObject rushResponse = apiService.call(url, params, "post", token);
@@ -296,7 +296,7 @@ public class MemberService {
                 endpoint = pointsConversionEndpoint;
             }
             String url = rushHost + endpoint;
-            url = url.replace(":employee_id", employeeId).replace(":merchant_type", merchant.getMerchantType().getValue()).replace(":customer_id", customerId);
+            url = url.replace(":employee_id", employeeId).replace(":merchant_type", merchant.getMerchantType().getValue().toLowerCase()).replace(":customer_id", customerId);
             JSONObject jsonObject = apiService.call(url, null, "get", token);
             if (jsonObject != null) {
 
@@ -440,7 +440,7 @@ public class MemberService {
         if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
             endpoint = sgMerchantRewardsEndpoint;
         } else {
-            endpoint = merchantRewardsEndpoint.replace(":merchant_type", merchant.getMerchantType().getValue());
+            endpoint = merchantRewardsEndpoint.replace(":merchant_type", merchant.getMerchantType().getValue().toLowerCase());
         }
         String url = rushHost + endpoint;
         try {
@@ -592,7 +592,7 @@ public class MemberService {
         } else {
             endpoint = unclaimedRewardsEndpoint;
         }
-        String url = rushHost + endpoint.replace(":merchant_type", merchant.getMerchantType().getValue());
+        String url = rushHost + endpoint.replace(":merchant_type", merchant.getMerchantType().getValue().toLowerCase());
         url = url.replace(":employee_id", employeeId);
         url = url.replace(":customer_id", customerId);
 

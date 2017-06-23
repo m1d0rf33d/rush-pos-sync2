@@ -5,7 +5,7 @@ package com.rush.model.enums;
  */
 public enum MerchantClassification {
 
-    BASIC("basic"), GLOBE_SG("globe_sg");
+    BASIC("BASIC"), GLOBE_SG("GLOBE_SG");
 
     private String value;
 

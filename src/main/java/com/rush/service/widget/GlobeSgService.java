@@ -33,7 +33,7 @@ public class GlobeSgService {
 
     public List<JSONObject> getBranches(Merchant merchant) {
         try {
-            String url = rushHost + sgBranchesEndpoint.replace(":merchant_type", merchant.getMerchantType().getValue());
+            String url = rushHost + sgBranchesEndpoint.replace(":merchant_type", merchant.getMerchantType().getValue().toLowerCase());
             String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
             JSONObject jsonObject = apiService.call(url, null, "get", token);
             if (jsonObject != null) {

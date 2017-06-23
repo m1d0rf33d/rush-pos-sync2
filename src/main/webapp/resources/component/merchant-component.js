@@ -59,7 +59,8 @@ class MerchantComponent extends Component {
 
     openModal() {
         this.setState({
-            modalIsOpen: true
+            modalIsOpen: true,
+            merchant: {}
         })
     }
 
@@ -117,7 +118,19 @@ class MerchantComponent extends Component {
                 'classification': this.state.merchant.classification,
                 'withVk': this.state.merchant.withVk
         }
-        console.log(this.state.merchant);
+
+        console.log(data);
+        if (data.merchantType == undefined || data.classification == undefined
+            || data.withVk == undefined || data.merchantType == -1 || data.classification == -1
+            || data.withVk == -1 || data.status == -1 || data.status == undefined) {
+            this.setState({
+                message: 'Invalid input',
+                modalIsOpen: false,
+                alertIsOpen: true
+
+            })
+            return;
+        }
 
         let postConfig = {
             method: 'POST',

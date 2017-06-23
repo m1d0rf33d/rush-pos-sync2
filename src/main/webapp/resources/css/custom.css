@@ -164,3 +164,7 @@ button {
 	min-width: 1000px;
 	overflow-y: scroll;
 }
+
+.ReactModal__Overlay {
+	z-index: 2;
+}
