@@ -333,7 +333,7 @@ public class MemberService {
             String url = rushHost + endpoint;
             url = url.replace(":customer_id", (String) requestBody.get("customer_id"));
             url = url.replace(":employee_id", (String) requestBody.get("employee_id"));
-            url = url.replace(":merchant_type", (String) requestBody.get("merchant_type"));
+            url = url.replace(":merchant_type", ((String) requestBody.get("merchant_type")).toLowerCase());
             String merchantKey = (String) requestBody.get("merchant_key");
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("uuid", (String) requestBody.get("customer_id")));
@@ -400,7 +400,8 @@ public class MemberService {
 
         String url = rushHost + earnGuestEndpoint;
         url = url.replace(":employee_id", employeeId);
-        url = url.replace(":merchant_type", merchantType);
+        url = url.replace(":merchant_type", merchantType.toLowerCase());
+
 
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("mobile_no", mobileNumber));
