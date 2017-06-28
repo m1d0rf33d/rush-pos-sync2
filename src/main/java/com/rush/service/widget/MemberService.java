@@ -486,7 +486,7 @@ public class MemberService {
             if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
                 endpoint = sgRedeemEndpoint;
             } else {
-                endpoint = redeemRewardsEndpoint.replace(":merchant_type", merchantType);
+                endpoint = redeemRewardsEndpoint.replace(":merchant_type", merchantType.toLowerCase());
             }
 
             String url = rushHost + endpoint;
@@ -638,7 +638,7 @@ public class MemberService {
             if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
                 endpoint = sgIssueEndpoint;
             } else {
-                endpoint = claimRewardsEndpoint.replace(":merchant_type", merchantType);
+                endpoint = claimRewardsEndpoint.replace(":merchant_type", merchantType.toLowerCase());
             }
 
             String url = rushHost + endpoint;
