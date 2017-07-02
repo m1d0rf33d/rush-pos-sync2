@@ -69,6 +69,7 @@ public class DatasourceConfig {
         jpaProterties.put(PROPERTY_NAME_HIBERNATE_NAMING_STRATEGY, "org.hibernate.cfg.ImprovedNamingStrategy");
         jpaProterties.put(PROPERTY_NAME_HIBERNATE_SHOW_SQL, "false");
         jpaProterties.put(PROPERTY_NAME_HIBERNATE_HBM2DDL_AUTO, "update");
+        
 
         entityManagerFactoryBean.setJpaProperties(jpaProterties);
         return entityManagerFactoryBean;
