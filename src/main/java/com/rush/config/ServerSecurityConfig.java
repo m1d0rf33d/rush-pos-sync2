@@ -37,6 +37,7 @@ public class ServerSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/login").permitAll()
                 .antMatchers("/backdoor/*").permitAll()
                 .antMatchers("/resources/**").permitAll()
+                .antMatchers("/jenkins/build").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()

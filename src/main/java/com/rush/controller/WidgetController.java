@@ -1,11 +1,14 @@
 package com.rush.controller;
 
+import com.rush.service.JenkinsService;
 import com.rush.service.LoggingService;
 import com.rush.service.widget.MemberService;
 import com.rush.service.widget.WidgetService;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -18,6 +21,8 @@ public class WidgetController {
     private WidgetService widgetService;
     @Autowired
     private MemberService memberService;
+    @Autowired
+    private JenkinsService jenkinsService;
 
 
     @RequestMapping(value = "/initialize/{merchantKey}", method = RequestMethod.GET)
@@ -82,5 +87,11 @@ public class WidgetController {
     @RequestMapping(value = "/api/widget/issueStampReward", method = RequestMethod.POST)
     public JSONObject issueStampReward(@RequestBody JSONObject requestBody) {
         return memberService.issueStampReward(requestBody);
+    }
+
+    @RequestMapping(value = "/jenkins/build", method = RequestMethod.GET)
+    public ResponseEntity<String> triggerJenkinsBuild() {
+        boolean success = jenkinsService.triggerJenkins();
+        return new ResponseEntity<String>(success ? "success" : "failed", HttpStatus.OK);
     }
 }

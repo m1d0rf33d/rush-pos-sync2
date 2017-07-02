@@ -45,7 +45,7 @@ create table oauth_code (
   code VARCHAR(255), authentication LONG VARBINARY
 );
 
-drop table if exists oauth_approvals;
+/*drop table if exists oauth_approvals;
 create table oauth_approvals (
     userId VARCHAR(255),
     clientId VARCHAR(255),
@@ -53,7 +53,7 @@ create table oauth_approvals (
     status VARCHAR(10),
     expiresAt TIMESTAMP,
     lastModifiedAt TIMESTAMP
-);
+);*/
 
 drop table if exists ClientDetails;
 create table ClientDetails (
