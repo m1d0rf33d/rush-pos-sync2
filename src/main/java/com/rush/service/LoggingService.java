@@ -39,28 +39,24 @@ public class LoggingService {
 
     @Pointcut("within(com.rush.controller.WidgetController)")
     public void widgetPointCut() {
-
+        //No need to add method body this only serves as a reference
     }
 
     @After("widgetPointCut()")
     public void logWidgetAccess(JoinPoint joinPoint) {
-       try {
-           LOG.info("Entered -> " + joinPoint.getSignature().getName());
-           StringBuilder sb = new StringBuilder();
-           sb.append("Arguments -> ");
-           Object[] args = joinPoint.getArgs();
-           Arrays.asList(args).forEach(arg -> {
-               sb.append(arg);
-           });
-           LOG.info(sb.toString());
-       } catch (Throwable throwable) {
-           throwable.printStackTrace();
-       }
+        LOG.info("Entered -> " + joinPoint.getSignature().getName());
+        StringBuilder sb = new StringBuilder();
+        sb.append("Arguments -> ");
+        Object[] args = joinPoint.getArgs();
+        Arrays.asList(args).forEach(arg -> {
+            sb.append(arg);
+        });
+        LOG.info(sb.toString());
     }
 
     @Pointcut("within(com.rush.controller.WebResource)")
     public void webResourcePointcut() {
-
+        //No need to add method body this is just for reference
     }
 
     @After("webResourcePointcut()")

@@ -11,16 +11,16 @@ import org.aspectj.lang.annotation.Pointcut;
 @Aspect
 public class ErrorLogger {
 
-    private static final Logger LOG = Logger.getLogger(ErrorLogger.class);
+    public static final Logger LOG = Logger.getLogger(ErrorLogger.class);
 
 
     @Pointcut("within(com.rush.controller.WidgetController)")
     public void widgetPointCut() {
-
+        //No need to add method body this only serves as a reference
     }
 
     @AfterThrowing(value = "execution(* com.rush.controller.WidgetController.*(..))", throwing = "ex")
-    public void logAfterThrowingError(Exception ex) throws Throwable {
+    public void logAfterThrowingError(Exception ex)  {
         StackTraceElement[] err = ex.getStackTrace();
         LOG.info(ex.toString());
         LOG.info(err[0].toString());

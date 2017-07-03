@@ -29,40 +29,6 @@ public class FileUploadService {
     private AppUpdateRepository appUpdateRepository;
 
 
-    public ApiResponse uploadFile(MultipartFile file) {
-        boolean successUpload =false;
-        if (file != null) {
-          try {
-              byte[] bytes = file.getBytes();
-
-              // Creating the directory to store file
-              String rootPath = System.getProperty("catalina.home");
-              File dir = new File(rootPath + File.separator + "/updates");
-
-              if (!dir.exists())
-                  dir.mkdirs();
-
-              // Create the file on server
-              File serverFile = new File(dir.getAbsolutePath()
-                      + File.separator + file.getOriginalFilename());
-              BufferedOutputStream stream = new BufferedOutputStream(
-                      new FileOutputStream(serverFile));
-              stream.write(bytes);
-              stream.close();
-              successUpload = true;
-          } catch (IOException e) {
-              e.printStackTrace();
-          }
-        }
-        ApiResponse apiResponse = new ApiResponse();
-        if (successUpload) {
-            apiResponse.setResponseCode("200");
-        } else {
-            apiResponse.setResponseCode("500");
-        }
-
-        return apiResponse;
-    }
 
     public ApiResponse checkForUpdates(String merchantKey, String version) {
         boolean forUpdate = false;

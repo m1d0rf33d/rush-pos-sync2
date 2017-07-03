@@ -38,14 +38,14 @@
 				<environment>sonar</environment>
 				<!-- Optional URL to server. Default value is http://localhost:9000 -->
 				<sonar.host.url>
-					http://localhost:9000/
+					http://52.76.39.137:9000/
 				</sonar.host.url>
 				<sonar.exclusions>src/main/webapp/**/*</sonar.exclusions>
 				<sonar.coverage.exclusions>src/main/webapp/**/*</sonar.coverage.exclusions>
-				<sonar.jdbc.url>jdbc:mysql://localhost:3306/sonar</sonar.jdbc.url>
+				<!--<sonar.jdbc.url>jdbc:mysql://localhost:3306/sonar</sonar.jdbc.url>
 				<sonar.jdbc.driver>com.mysql.jdbc.Driver</sonar.jdbc.driver>
 				<sonar.jdbc.username>sonar</sonar.jdbc.username>
-				<sonar.jdbc.password>sonar</sonar.jdbc.password>
+				<sonar.jdbc.password>sonar</sonar.jdbc.password>-->
 			</properties>
 		</profile>
 
@@ -59,6 +59,12 @@
 			<id>SAT</id>
 			<properties>
 				<environment>staging</environment>
+			</properties>
+		</profile>
+		<profile>
+			<id>PARQ</id>
+			<properties>
+				<environment>parq</environment>
 			</properties>
 		</profile>
 		<profile>

@@ -13,6 +13,8 @@ import org.jdom.input.SAXBuilder;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -24,13 +26,17 @@ import java.io.StringReader;
  * Created by m1d0rf33d on 6/30/17.
  */
 @Service
+@PropertySource("classpath:api.properties")
 public class JenkinsService {
 
+
+    @Value("${jenkins.host}")
+    private String jenkinsHost;
 
     public boolean triggerJenkins() {
        try {
            CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-           String url = "http://52.74.203.202:8080/crumbIssuer/api/xml";
+           String url = jenkinsHost + "/crumbIssuer/api/xml";
            HttpGet request = new HttpGet(url);
            request.addHeader("Authorization", "Basic YWRtaW46MTIzNDU2Nzg=");
            HttpResponse response = httpClient.execute(request);
@@ -39,7 +45,7 @@ public class JenkinsService {
            BufferedReader rd = new BufferedReader(
                    new InputStreamReader(response.getEntity().getContent()));
 
-           StringBuffer result = new StringBuffer();
+           StringBuilder result = new StringBuilder();
            String line = "";
            while ((line = rd.readLine()) != null) {
                result.append(line);
@@ -51,8 +57,8 @@ public class JenkinsService {
            Content content = doc.getRootElement().getContent(0);
            String crumb = content.getValue();
 
-           HttpPost httpPost = new HttpPost("http://52.74.203.202:8080/job/rush-pos-sync/build");
-           httpPost.addHeader("Authorization", "Basic YWRtaW46NDdmZTg3MjVkNDZiMDQ0Y2ZiNGRlOGU5ZDAxMWM3ODk=");
+           HttpPost httpPost = new HttpPost(jenkinsHost + "/job/rush-pos-sync/build");
+           httpPost.addHeader("Authorization", "Basic YWRtaW46NWMwNTczOGI1NDM1NTBhNGE0N2FjODJkYjY2MTIzMzE=");
            httpPost.addHeader("Jenkins-Crumb", crumb);
            httpClient.execute(httpPost);
 

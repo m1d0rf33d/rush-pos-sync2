@@ -92,13 +92,42 @@ public class MemberService {
     private TokenService tokenService;
     @Autowired
     private MerchantRepository merchantRepository;
+    
+    private static final String MERCHANT_KEY = "merchant_key";
+    private static final String EMPLOYEE_ID = "employee_id";
+    private static final String APP_STATE = "app_state";
+    private static final String MOBILE_NO = "mobile_no";
+    private static final String MERCHANT_TYPE_REF = ":merchant_type";
+    private static final String EMPLOYEE_ID_REF = ":employee_id";
+    private static final String ERROR_CODE = "error_code";
+    private static final String MESSAGE = "message";
+    private static final String GENDER = "gender";
+    private static final String BIRTHDATE = "birthdate";
+    private static final String EMAIL = "email";
+    private static final String ACCOUNT_NUMBER = "account_number";
+    private static final String POINTS = "points";
+    private static final String REDEEM_ID = "redeem_id";
+    private static final String QUANTITY = "quantity";
+    private static final String TRANSACTIONS = "transactions";
+    private static final String CUSTOMER_ID_REF  = ":customer_id";
+    private static final String TITLE_ID = "title_id";
+    private static final String MERCHANT_TYPE = "merchant_type";
+    private static final String EARNING_PESO = "earning_peso";
+    private static final String CUSTOMER_ID = "customer_id";
+    private static final String OR_NO = "or_no";
+    private static final String AMOUNT = "amount";
+    private static final String MERCHANT_NOT_FOUND = "Merchant not found";
+    private static final String REWARD_ID = "reward_id";
+    private static final String ERRORS = "errors";
+
+
 
     public JSONObject loginMember(JSONObject requestBody) {
 
-        String merchantKey  = (String) requestBody.get("merchant_key");
-        String employeeId   = (String) requestBody.get("employee_id");
-        String appState     = (String) requestBody.get("app_state");
-        String mobileNumber = (String) requestBody.get("mobile_no");
+        String merchantKey  = (String) requestBody.get(MERCHANT_KEY);
+        String employeeId   = (String) requestBody.get(EMPLOYEE_ID);
+        String appState     = (String) requestBody.get(APP_STATE);
+        String mobileNumber = (String) requestBody.get(MOBILE_NO);
 
         JSONObject payload = new JSONObject();
         Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus(merchantKey, MerchantStatus.ACTIVE);
@@ -110,40 +139,40 @@ public class MemberService {
             } else {
                 endpoint = loginMemberEndpoint;
             }
-            String url = rushHost + endpoint.replace(":merchant_type", merchant.getMerchantType().getValue().toLowerCase());
-            url = url.replace(":employee_id", employeeId);
+            String url = rushHost + endpoint.replace(MERCHANT_TYPE_REF, merchant.getMerchantType().getValue().toLowerCase());
+            url = url.replace(EMPLOYEE_ID_REF, employeeId);
             String token = tokenService.getRushtoken(merchantKey, RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
             try {
                 List<NameValuePair> params = new ArrayList<>();
-                params.add(new BasicNameValuePair("mobile_no", mobileNumber));
+                params.add(new BasicNameValuePair(MOBILE_NO, mobileNumber));
                 JSONObject jsonObject = apiService.call(url, params, "post", token);
                 if (jsonObject != null) {
-                    if (jsonObject.get("error_code") == null) {
+                    if (jsonObject.get(ERROR_CODE) == null) {
                         tokenService.refreshToken(merchantKey, RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                         return loginMember(requestBody);
                     }
 
-                    payload.put("error_code", jsonObject.get("error_code"));
-                    payload.put("message", jsonObject.get("message"));
-                    if (jsonObject.get("error_code").equals("0x0")) {
+                    payload.put(ERROR_CODE, jsonObject.get(ERROR_CODE));
+                    payload.put(MESSAGE, jsonObject.get(MESSAGE));
+                    if (jsonObject.get(ERROR_CODE).equals("0x0")) {
                         JSONObject d = (JSONObject) jsonObject.get("data");
 
                         JSONObject member = new JSONObject();
-                        member.put("mobile_no",d.get("mobile_no"));
-                        member.put("gender", d.get("gender"));
+                        member.put(MOBILE_NO,d.get(MOBILE_NO));
+                        member.put(GENDER, d.get(GENDER));
                         member.put("profile_id", d.get("profile_id"));
                         member.put("name", d.get("name"));
-                        member.put("birthdate", d.get("birthdate"));
-                        member.put("email", d.get("email"));
+                        member.put(BIRTHDATE, d.get(BIRTHDATE));
+                        member.put(EMAIL, d.get(EMAIL));
                         member.put("registration_date", d.get("registration_date"));
                         member.put("id", d.get("id"));
-                        member.put("account_number", d.get("account_number"));
+                        member.put(ACCOUNT_NUMBER, d.get(ACCOUNT_NUMBER));
                         member.put("account_name", d.get("account_name"));
                         data.put("member", member);
 
                         if (merchant.getMerchantType().equals(MerchantType.LOYALTY)) {
-                            String points = getCurrentPoints((String) member.get("id"),(String) requestBody.get("employee_id"),merchant);
-                            member.put("points", points);
+                            String points = getCurrentPoints((String) member.get("id"),(String) requestBody.get(EMPLOYEE_ID),merchant);
+                            member.put(POINTS, points);
 
                             if (appState.equals(AppState.EARN_POINTS.toString()) ||
                                     appState.equals(AppState.PAY_WITH_POINTS.toString())) {
@@ -161,9 +190,9 @@ public class MemberService {
                                 List<JSONObject> unclaimedRewards = getUnclaimedRewards(employeeId, (String) member.get("id"), merchant);
                                 for (JSONObject redeem :unclaimedRewards) {
                                     JSONObject reward = (JSONObject)  redeem.get("reward");
-                                    reward.put("redeem_id",  redeem.get("id"));
+                                    reward.put(REDEEM_ID,  redeem.get("id"));
                                     reward.put("date", redeem.get("date"));
-                                    reward.put("quantity", redeem.get("quantity"));
+                                    reward.put(QUANTITY, redeem.get(QUANTITY));
                                     reward.put("claimed", redeem.get("claimed"));
                                     rewards.add(reward);
                                 }
@@ -172,7 +201,7 @@ public class MemberService {
 
 
                             if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
-                                data.put("account_points", getAccountPoints(merchant, (String) member.get("account_number"), employeeId));
+                                data.put("account_points", getAccountPoints(merchant, (String) member.get(ACCOUNT_NUMBER), employeeId));
                             }
                         } else {
                             JSONObject customerCard = getCustomerCard(merchant, employeeId, (String) member.get("id"));
@@ -180,7 +209,7 @@ public class MemberService {
                         }
 
                         if (appState.equals(AppState.MEMBER_INQUIRY.toString())) {
-                            data.put("transactions", getCustomerTransactions(merchant, (String) member.get("id")));
+                            data.put(TRANSACTIONS, getCustomerTransactions(merchant, (String) member.get("id")));
                         }
 
                         payload.put("data", data);
@@ -206,12 +235,12 @@ public class MemberService {
             String merchantKey = merchant.getUniqueKey();
             String token = tokenService.getRushtoken(merchantKey, RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
 
-            String url = rushHost + endpoint.replace(":merchant_type", merchant.getMerchantType().getValue().toLowerCase());
-            url = url.replace(":customer_id", customerId);
-            url = url.replace(":employee_id", employeeId);
+            String url = rushHost + endpoint.replace(MERCHANT_TYPE_REF, merchant.getMerchantType().getValue().toLowerCase());
+            url = url.replace(CUSTOMER_ID_REF, customerId);
+            url = url.replace(EMPLOYEE_ID_REF, employeeId);
             JSONObject jsonObject = apiService.call(url, null, "get", token);
             if (jsonObject != null) {
-                if (jsonObject.get("error_code") == null) {
+                if (jsonObject.get(ERROR_CODE) == null) {
                     tokenService.refreshToken(merchantKey, RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                     return getCurrentPoints(customerId, employeeId, merchant);
                 }
@@ -229,29 +258,28 @@ public class MemberService {
         JSONObject payload = new JSONObject();
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("name", (String) requestBody.get("name")));
-        params.add(new BasicNameValuePair("email", (String) requestBody.get("email")));
-        params.add(new BasicNameValuePair("mobile_no", (String) requestBody.get("mobile_no")));
+        params.add(new BasicNameValuePair(EMAIL, (String) requestBody.get(EMAIL)));
+        params.add(new BasicNameValuePair(MOBILE_NO, (String) requestBody.get(MOBILE_NO)));
         params.add(new BasicNameValuePair("pin", (String) requestBody.get("pin")));
 
-        String birthDate = (String) requestBody.get("birthdate");
+        String birthDate = (String) requestBody.get(BIRTHDATE);
         if (birthDate != null) {
-            params.add(new BasicNameValuePair("birthdate", birthDate));
+            params.add(new BasicNameValuePair(BIRTHDATE, birthDate));
         }
-        String gender = (String) requestBody.get("gender");
+        String gender = (String) requestBody.get(GENDER);
         if (gender != null) {
-            params.add(new BasicNameValuePair("gender", gender));
+            params.add(new BasicNameValuePair(GENDER, gender));
         }
-        if (requestBody.get("account_number") != null) {
-            params.add(new BasicNameValuePair("account_number", (String) requestBody.get("account_number")));
+        if (requestBody.get(ACCOUNT_NUMBER) != null) {
+            params.add(new BasicNameValuePair(ACCOUNT_NUMBER, (String) requestBody.get(ACCOUNT_NUMBER)));
         }
-        if (requestBody.get("title_id") != null) {
-            params.add(new BasicNameValuePair("title_id", ((Integer) requestBody.get("title_id")).toString()));
+        if (requestBody.get(TITLE_ID) != null) {
+            params.add(new BasicNameValuePair(TITLE_ID, ((Integer) requestBody.get(TITLE_ID)).toString()));
         }
 
 
-        String employeeId = (String) requestBody.get("employee_id");
-        String merchantKey = (String) requestBody.get("merchant_key");
-        String merchantType = (String) requestBody.get("merchant_type");
+        String employeeId = (String) requestBody.get(EMPLOYEE_ID);
+        String merchantKey = (String) requestBody.get(MERCHANT_KEY);
 
         Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus(merchantKey, MerchantStatus.ACTIVE);
         if (merchant != null) {
@@ -263,24 +291,24 @@ public class MemberService {
                 endpoint = registerMemberEndpoint;
             }
             String url = rushHost + endpoint;
-            url = url.replace(":employee_id", employeeId).replace(":merchant_type", merchant.getMerchantType().getValue().toLowerCase());
+            url = url.replace(EMPLOYEE_ID_REF, employeeId).replace(MERCHANT_TYPE_REF, merchant.getMerchantType().getValue().toLowerCase());
 
             try {
                 JSONObject rushResponse = apiService.call(url, params, "post", token);
                 if (rushResponse != null) {
-                    if (rushResponse.get("error_code") == null) {
+                    if (rushResponse.get(ERROR_CODE) == null) {
                         tokenService.refreshToken(merchantKey, RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                         return registerMember(requestBody);
                     }
 
-                    payload.put("error_code", rushResponse.get("error_code"));
-                    payload.put("message", rushResponse.get("message"));
+                    payload.put(ERROR_CODE, rushResponse.get(ERROR_CODE));
+                    payload.put(MESSAGE, rushResponse.get(MESSAGE));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
-            payload.put("message", "Merchant not found.");
+            payload.put(MESSAGE, "Merchant not found.");
         }
         return payload;
     }
@@ -296,18 +324,18 @@ public class MemberService {
                 endpoint = pointsConversionEndpoint;
             }
             String url = rushHost + endpoint;
-            url = url.replace(":employee_id", employeeId).replace(":merchant_type", merchant.getMerchantType().getValue().toLowerCase()).replace(":customer_id", customerId);
+            url = url.replace(EMPLOYEE_ID_REF, employeeId).replace(MERCHANT_TYPE_REF, merchant.getMerchantType().getValue().toLowerCase()).replace(CUSTOMER_ID_REF, customerId);
             JSONObject jsonObject = apiService.call(url, null, "get", token);
             if (jsonObject != null) {
 
-                if (jsonObject.get("error_code") == null) {
+                if (jsonObject.get(ERROR_CODE) == null) {
                     tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                     return getPointsRule(employeeId, customerId, merchant);
                 }
 
-                if (jsonObject.get("error_code").equals("0x0")) {
+                if (jsonObject.get(ERROR_CODE).equals("0x0")) {
                     JSONObject dataJSON = (JSONObject) jsonObject.get("data");
-                    payload.put("earning_peso", dataJSON.get("earning_peso"));
+                    payload.put(EARNING_PESO, dataJSON.get(EARNING_PESO));
                     payload.put("redemption_peso", dataJSON.get("redemption_peso"));
                 }
             }
@@ -321,7 +349,7 @@ public class MemberService {
         JSONObject payload = new JSONObject();
 
 
-        Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus((String) requestBody.get("merchant_key"), MerchantStatus.ACTIVE);
+        Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus((String) requestBody.get(MERCHANT_KEY), MerchantStatus.ACTIVE);
         if (merchant != null) {
             String endpoint;
             if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
@@ -331,19 +359,19 @@ public class MemberService {
             }
 
             String url = rushHost + endpoint;
-            url = url.replace(":customer_id", (String) requestBody.get("customer_id"));
-            url = url.replace(":employee_id", (String) requestBody.get("employee_id"));
-            url = url.replace(":merchant_type", ((String) requestBody.get("merchant_type")).toLowerCase());
-            String merchantKey = (String) requestBody.get("merchant_key");
+            url = url.replace(CUSTOMER_ID_REF, (String) requestBody.get(CUSTOMER_ID));
+            url = url.replace(EMPLOYEE_ID_REF, (String) requestBody.get(EMPLOYEE_ID));
+            url = url.replace(MERCHANT_TYPE_REF, ((String) requestBody.get(MERCHANT_TYPE)).toLowerCase());
+            String merchantKey = (String) requestBody.get(MERCHANT_KEY);
             List<NameValuePair> params = new ArrayList<>();
-            params.add(new BasicNameValuePair("uuid", (String) requestBody.get("customer_id")));
-            params.add(new BasicNameValuePair("or_no", (String) requestBody.get("or_no")));
-            params.add(new BasicNameValuePair("amount", (String) requestBody.get("amount")));
+            params.add(new BasicNameValuePair("uuid", (String) requestBody.get(CUSTOMER_ID)));
+            params.add(new BasicNameValuePair(OR_NO, (String) requestBody.get(OR_NO)));
+            params.add(new BasicNameValuePair(AMOUNT, (String) requestBody.get(AMOUNT)));
 
             //validate points
-            JSONObject pointsRule = getPointsRule((String) requestBody.get("employee_id"), (String) requestBody.get("customer_id"), merchant);
-            Long earningPeso = (Long) pointsRule.get("earning_peso");
-            String amountStr = (String) requestBody.get("amount");
+            JSONObject pointsRule = getPointsRule((String) requestBody.get(EMPLOYEE_ID), (String) requestBody.get(CUSTOMER_ID), merchant);
+            Long earningPeso = (Long) pointsRule.get(EARNING_PESO);
+            String amountStr = (String) requestBody.get(AMOUNT);
             Long amt;
             try {
                 amt = Long.parseLong(amountStr);
@@ -352,8 +380,8 @@ public class MemberService {
                 amt = d.longValue();
             }
             if (earningPeso > amt) {
-                payload.put("error_code", "0x1");
-                payload.put("message", "Sorry! Amount entered is below the minimum purchase of P" + earningPeso);
+                payload.put(ERROR_CODE, "0x1");
+                payload.put(MESSAGE, "Sorry! Amount entered is below the minimum purchase of P" + earningPeso);
                 return payload;
             }
 
@@ -362,26 +390,26 @@ public class MemberService {
                 JSONObject jsonObject = apiService.call(url, params, "post", token);
                 if (jsonObject != null) {
 
-                    if (jsonObject.get("error_code") == null) {
+                    if (jsonObject.get(ERROR_CODE) == null) {
                         tokenService.refreshToken(merchantKey, RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                         return earnPoints(requestBody);
                     }
 
-                    String errorCode = (String) jsonObject.get("error_code");
-                    payload.put("error_code", errorCode);
+                    String errorCode = (String) jsonObject.get(ERROR_CODE);
+                    payload.put(ERROR_CODE, errorCode);
 
                     if (errorCode.equals("0x0")) {
-                        String points = getCurrentPoints((String) requestBody.get("customer_id"), (String) requestBody.get("employee_id"), merchant);
-                        payload.put("points", points);
+                        String points = getCurrentPoints((String) requestBody.get(CUSTOMER_ID), (String) requestBody.get(EMPLOYEE_ID), merchant);
+                        payload.put(POINTS, points);
                     }
-                    payload.put("message",jsonObject.get("message"));
+                    payload.put(MESSAGE,jsonObject.get(MESSAGE));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
         } else {
-            payload.put("mesage", "Merchant not found");
+            payload.put("mesage", MERCHANT_NOT_FOUND);
         }
 
         return payload;
@@ -391,22 +419,22 @@ public class MemberService {
 
         JSONObject payload = new JSONObject();
 
-        String merchantType = (String) requestBody.get("merchant_type");
-        String merchantKey = (String) requestBody.get("merchant_key");
-        String mobileNumber = (String) requestBody.get("mobile_no");
-        String orNumber = (String) requestBody.get("or_no");
-        String employeeId = (String)  requestBody.get("employee_id");
-        String amount = (String) requestBody.get("amount");
+        String merchantType = (String) requestBody.get(MERCHANT_TYPE);
+        String merchantKey = (String) requestBody.get(MERCHANT_KEY);
+        String mobileNumber = (String) requestBody.get(MOBILE_NO);
+        String orNumber = (String) requestBody.get(OR_NO);
+        String employeeId = (String)  requestBody.get(EMPLOYEE_ID);
+        String amount = (String) requestBody.get(AMOUNT);
 
         String url = rushHost + earnGuestEndpoint;
-        url = url.replace(":employee_id", employeeId);
-        url = url.replace(":merchant_type", merchantType.toLowerCase());
+        url = url.replace(EMPLOYEE_ID_REF, employeeId);
+        url = url.replace(MERCHANT_TYPE_REF, merchantType.toLowerCase());
 
 
         List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("mobile_no", mobileNumber));
-        params.add(new BasicNameValuePair("or_no", orNumber));
-        params.add(new BasicNameValuePair("amount", amount));
+        params.add(new BasicNameValuePair(MOBILE_NO, mobileNumber));
+        params.add(new BasicNameValuePair(OR_NO, orNumber));
+        params.add(new BasicNameValuePair(AMOUNT, amount));
 
         Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus(merchantKey, MerchantStatus.ACTIVE);
         if (merchant != null) {
@@ -416,21 +444,21 @@ public class MemberService {
                 JSONObject jsonObject = apiService.call(url, params, "post", token);
                 if (jsonObject != null) {
 
-                    if (jsonObject.get("error_code") == null) {
+                    if (jsonObject.get(ERROR_CODE) == null) {
                         tokenService.refreshToken(merchantKey, RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                         return guestPurchase(requestBody);
                     }
 
-                    String errorCode = (String) jsonObject.get("error_code");
-                    String mesage = (String) jsonObject.get("message");
-                    payload.put("error_code", errorCode);
-                    payload.put("message", mesage);
+                    String errorCode = (String) jsonObject.get(ERROR_CODE);
+                    String mesage = (String) jsonObject.get(MESSAGE);
+                    payload.put(ERROR_CODE, errorCode);
+                    payload.put(MESSAGE, mesage);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
-            payload.put("message", "Merchant not found");
+            payload.put(MESSAGE, MERCHANT_NOT_FOUND);
         }
 
         return payload;
@@ -441,7 +469,7 @@ public class MemberService {
         if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
             endpoint = sgMerchantRewardsEndpoint;
         } else {
-            endpoint = merchantRewardsEndpoint.replace(":merchant_type", merchant.getMerchantType().getValue().toLowerCase());
+            endpoint = merchantRewardsEndpoint.replace(MERCHANT_TYPE_REF, merchant.getMerchantType().getValue().toLowerCase());
         }
         String url = rushHost + endpoint;
         try {
@@ -449,7 +477,7 @@ public class MemberService {
             JSONObject jsonObject = apiService.call(url, new ArrayList<>(), "get", token);
             if (jsonObject != null) {
 
-                if (jsonObject.get("error_code") == null) {
+                if (jsonObject.get(ERROR_CODE) == null) {
                     tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                     return getMerchantRewards(merchant);
                 }
@@ -459,20 +487,20 @@ public class MemberService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return new ArrayList<>();
     }
 
     public JSONObject redeemReward(JSONObject requestBody) {
 
         JSONObject payload = new JSONObject();
 
-        String employeeId = (String) requestBody.get("employee_id");
-        String merchantKey = (String) requestBody.get("merchant_key");
-        String merchantType = (String) requestBody.get("merchant_type");
-        String customerId = (String) requestBody.get("customer_id");
-        String rewardId = (String) requestBody.get("reward_id");
+        String employeeId = (String) requestBody.get(EMPLOYEE_ID);
+        String merchantKey = (String) requestBody.get(MERCHANT_KEY);
+        String merchantType = (String) requestBody.get(MERCHANT_TYPE);
+        String customerId = (String) requestBody.get(CUSTOMER_ID);
+        String rewardId = (String) requestBody.get(REWARD_ID);
         String pin = (String) requestBody.get("pin");
-        String quantity = (String) requestBody.get("quantity");
+        String quantity = (String) requestBody.get(QUANTITY);
 
         Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus(merchantKey, MerchantStatus.ACTIVE);
         if (merchant != null) {
@@ -480,24 +508,24 @@ public class MemberService {
 
             List<NameValuePair> params = new ArrayList<>();
             params.add(new BasicNameValuePair("pin", pin));
-            params.add(new BasicNameValuePair("quantity", quantity));
+            params.add(new BasicNameValuePair(QUANTITY, quantity));
 
             String endpoint = "";
             if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
                 endpoint = sgRedeemEndpoint;
             } else {
-                endpoint = redeemRewardsEndpoint.replace(":merchant_type", merchantType.toLowerCase());
+                endpoint = redeemRewardsEndpoint.replace(MERCHANT_TYPE_REF, merchantType.toLowerCase());
             }
 
             String url = rushHost + endpoint;
-            url = url.replace(":customer_id", customerId);
-            url = url.replace(":employee_id", employeeId);
+            url = url.replace(CUSTOMER_ID_REF, customerId);
+            url = url.replace(EMPLOYEE_ID_REF, employeeId);
             url = url.replace(":reward_id", rewardId);
             try {
                 JSONObject jsonObject = apiService.call(url, params, "post", token);
                 if (jsonObject != null) {
-                    String errorCode = (String) jsonObject.get("error_code");
-                    String message = (String) jsonObject.get("message");
+                    String errorCode = (String) jsonObject.get(ERROR_CODE);
+                    String message = (String) jsonObject.get(MESSAGE);
 
                     if (errorCode == null) {
                         tokenService.refreshToken(merchantKey, RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
@@ -506,19 +534,19 @@ public class MemberService {
                     JSONObject data = new JSONObject();
                     if (errorCode.equals("0x0")) {
                         String points = getCurrentPoints(customerId, employeeId,merchant);
-                        data.put("points", points);
+                        data.put(POINTS, points);
                         payload.put("data", data);
                     }
 
-                    payload.put("error_code", errorCode);
-                    payload.put("message", message);
+                    payload.put(ERROR_CODE, errorCode);
+                    payload.put(MESSAGE, message);
 
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
-            payload.put("message", "Merchant not found");
+            payload.put(MESSAGE, MERCHANT_NOT_FOUND);
         }
 
         return payload;
@@ -529,58 +557,58 @@ public class MemberService {
 
         JSONObject payload = new JSONObject();
 
-        String employeeId = (String) requestBody.get("employee_id");
-        String merchantType = (String) requestBody.get("merchant_type");
-        String merchantKey = (String) requestBody.get("merchant_key");
-        String customerId = (String) requestBody.get("customer_id");
+        String employeeId = (String) requestBody.get(EMPLOYEE_ID);
+        String merchantType = (String) requestBody.get(MERCHANT_TYPE);
+        String merchantKey = (String) requestBody.get(MERCHANT_KEY);
+        String customerId = (String) requestBody.get(CUSTOMER_ID);
 
         String pin = (String) requestBody.get("pin");
-        String points = (String) requestBody.get("points");
-        String orNumber = (String) requestBody.get("or_no");
-        String amount = (String) requestBody.get("amount");
+        String points = (String) requestBody.get(POINTS);
+        String orNumber = (String) requestBody.get(OR_NO);
+        String amount = (String) requestBody.get(AMOUNT);
 
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("employee_uuid", employeeId));
-        params.add(new BasicNameValuePair("or_no", orNumber));
-        params.add(new BasicNameValuePair("amount", amount));
-        params.add(new BasicNameValuePair("points", points));
+        params.add(new BasicNameValuePair(OR_NO, orNumber));
+        params.add(new BasicNameValuePair(AMOUNT, amount));
+        params.add(new BasicNameValuePair(POINTS, points));
         params.add(new BasicNameValuePair("pin", pin));
 
         Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus(merchantKey, MerchantStatus.ACTIVE);
         if (merchant != null) {
-            String url = rushHost + payPointsEndpoint.replace(":merchant_type", merchantType);
-            url = url.replace(":customer_id", customerId);
+            String url = rushHost + payPointsEndpoint.replace(MERCHANT_TYPE_REF, merchantType);
+            url = url.replace(CUSTOMER_ID_REF, customerId);
 
             String token = tokenService.getRushtoken(merchantKey, RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
             try {
                 JSONObject jsonObject = apiService.call(url, params, "post", token);
                 if (jsonObject != null) {
 
-                    if (jsonObject.get("error_code") == null) {
+                    if (jsonObject.get(ERROR_CODE) == null) {
                         tokenService.refreshToken(merchantKey, RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                         return payWithPoints(requestBody);
                     }
 
-                    String errorCode = (String) jsonObject.get("error_code");
-                    String message = (String) jsonObject.get("message");
-                    payload.put("error_code", errorCode);
-                    payload.put("message", message);
+                    String errorCode = (String) jsonObject.get(ERROR_CODE);
+                    String message = (String) jsonObject.get(MESSAGE);
+                    payload.put(ERROR_CODE, errorCode);
+                    payload.put(MESSAGE, message);
 
                     if (errorCode.equals("0x0")) {
                         String remainingPoints = getCurrentPoints(customerId, employeeId, merchant);
                         JSONObject data = new JSONObject();
-                        data.put("points", remainingPoints);
+                        data.put(POINTS, remainingPoints);
                         payload.put("data", data);
                     }
 
-                    payload.put("errors", jsonObject.get("errors"));
+                    payload.put(ERRORS, jsonObject.get(ERRORS));
 
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
-            payload.put("message", "Merchant not found");
+            payload.put(MESSAGE, MERCHANT_NOT_FOUND);
         }
         return payload;
     }
@@ -593,79 +621,79 @@ public class MemberService {
         } else {
             endpoint = unclaimedRewardsEndpoint;
         }
-        String url = rushHost + endpoint.replace(":merchant_type", merchant.getMerchantType().getValue().toLowerCase());
-        url = url.replace(":employee_id", employeeId);
-        url = url.replace(":customer_id", customerId);
+        String url = rushHost + endpoint.replace(MERCHANT_TYPE_REF, merchant.getMerchantType().getValue().toLowerCase());
+        url = url.replace(EMPLOYEE_ID_REF, employeeId);
+        url = url.replace(CUSTOMER_ID_REF, customerId);
 
         String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
         try {
             JSONObject jsonObject = apiService.call(url, null, "get", token);
             if (jsonObject != null) {
 
-                if (jsonObject.get("error_code") == null) {
+                if (jsonObject.get(ERROR_CODE) == null) {
                     tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                     return getUnclaimedRewards(employeeId, customerId, merchant);
                 }
 
-                if (jsonObject.get("error_code").equals("0x0")) {
+                if (jsonObject.get(ERROR_CODE).equals("0x0")) {
                     return (ArrayList) jsonObject.get("data");
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return new ArrayList<>();
     }
 
     public JSONObject issueReward(JSONObject requestBody) {
 
         JSONObject payload = new JSONObject();
 
-        String employeeId = (String) requestBody.get("employee_id");
-        String merchantType = (String) requestBody.get("merchant_type");
-        String merchantKey = (String) requestBody.get("merchant_key");
-        String customerId = (String) requestBody.get("customer_id");
-        String rewardId = (String) requestBody.get("redeem_id");
-        String quantity = (String) requestBody.get("quantity");
+        String employeeId = (String) requestBody.get(EMPLOYEE_ID);
+        String merchantType = (String) requestBody.get(MERCHANT_TYPE);
+        String merchantKey = (String) requestBody.get(MERCHANT_KEY);
+        String customerId = (String) requestBody.get(CUSTOMER_ID);
+        String rewardId = (String) requestBody.get(REDEEM_ID);
+        String quantity = (String) requestBody.get(QUANTITY);
 
         Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus(merchantKey, MerchantStatus.ACTIVE);
         if (merchant != null) {
             List<NameValuePair> params = new ArrayList<>();
-            params.add(new BasicNameValuePair("redeem_id", rewardId));
-            params.add(new BasicNameValuePair("quantity", quantity));
+            params.add(new BasicNameValuePair(REDEEM_ID, rewardId));
+            params.add(new BasicNameValuePair(QUANTITY, quantity));
 
             String endpoint = "";
             if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
                 endpoint = sgIssueEndpoint;
             } else {
-                endpoint = claimRewardsEndpoint.replace(":merchant_type", merchantType.toLowerCase());
+                endpoint = claimRewardsEndpoint.replace(MERCHANT_TYPE_REF, merchantType.toLowerCase());
             }
 
             String url = rushHost + endpoint;
-            url = url.replace(":customer_id", customerId);
-            url = url.replace(":employee_id", employeeId);
+            url = url.replace(CUSTOMER_ID_REF, customerId);
+            url = url.replace(EMPLOYEE_ID_REF, employeeId);
 
             String token = tokenService.getRushtoken(merchantKey, RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
             try {
                 JSONObject jsonObject = apiService.call(url, params, "post", token);
                 if (jsonObject != null) {
 
-                    if (jsonObject.get("error_code") == null) {
+                    if (jsonObject.get(ERROR_CODE) == null) {
                         tokenService.refreshToken(merchantKey, RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                         return issueReward(requestBody);
                     }
 
-                    String errorCode = (String) jsonObject.get("error_code");
-                    String message = (String) jsonObject.get("message");
+                    String errorCode = (String) jsonObject.get(ERROR_CODE);
+                    String message = (String) jsonObject.get(MESSAGE);
 
-                    payload.put("message", message);
-                    payload.put("error_code", errorCode);
+                    payload.put(MESSAGE, message);
+                    payload.put(ERROR_CODE, errorCode);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
-            payload.put("message", "Merchant not found");
+            payload.put(MESSAGE, MERCHANT_NOT_FOUND);
         }
 
         return payload;
@@ -686,7 +714,7 @@ public class MemberService {
         try {
             JSONObject jsonObject = apiService.call(url, null, "get", token);
             if (jsonObject != null) {
-                String errorCode = (String) jsonObject.get("error_code");
+                String errorCode = (String) jsonObject.get(ERROR_CODE);
                 if (errorCode == null) {
                     tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.CUSTOMER_APP, merchant.getMerchantClassification());
                     return getCustomerTransactions(merchant, customerId);
@@ -699,75 +727,72 @@ public class MemberService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return new ArrayList<>();
     }
 
 
     public JSONObject sendOfflineTransacions(JSONObject requestBody) {
 
-        String merchantKey  = (String) requestBody.get("merchant_key");
-        String employeeId   = (String) requestBody.get("employee_id");
-        String appState     = (String) requestBody.get("app_state");
-        String merchantType = (String)requestBody.get("merchant_type");
+        String merchantKey  = (String) requestBody.get(MERCHANT_KEY);
+        String employeeId   = (String) requestBody.get(EMPLOYEE_ID);
+        String appState     = (String) requestBody.get(APP_STATE);
+        String merchantType = (String)requestBody.get(MERCHANT_TYPE);
 
         JSONObject reqBody = new JSONObject();
-        reqBody.put("merchant_key", merchantKey);
-        reqBody.put("merchant_type", merchantType);
-        reqBody.put("app_state", appState);
-        reqBody.put("employee_id", employeeId);
+        reqBody.put(MERCHANT_KEY, merchantKey);
+        reqBody.put(MERCHANT_TYPE, merchantType);
+        reqBody.put(APP_STATE, appState);
+        reqBody.put(EMPLOYEE_ID, employeeId);
 
-        List<JSONObject> transactions = (ArrayList) requestBody.get("transactions");
+        List<JSONObject> transactions = (ArrayList) requestBody.get(TRANSACTIONS);
         List<String> result = new ArrayList<>();
         for (HashMap transaction : transactions) {
             StringBuilder sb = new StringBuilder();
-            sb.append("mobileNumber=" + transaction.get("mobile_no"));
+            sb.append("mobileNumber=" + transaction.get(MOBILE_NO));
             sb.append(":");
-            sb.append("totalAmount=" + transaction.get("amount"));
+            sb.append("totalAmount=" + transaction.get(AMOUNT));
             sb.append(":");
-            sb.append("orNumber=" + transaction.get("or_no"));
+            sb.append("orNumber=" + transaction.get(OR_NO));
             sb.append(":");
             sb.append("date=" + transaction.get("date"));
             sb.append(":");
 
-            reqBody.put("mobile_no", transaction.get("mobile_no"));
+            reqBody.put(MOBILE_NO, transaction.get(MOBILE_NO));
 
             JSONObject payload = loginMember(reqBody);
 
-            String errorCode = (String) payload.get("error_code");
-            String message = (String) payload.get("message");
-
+            String errorCode = (String) payload.get(ERROR_CODE);
 
             if (errorCode.equals("0x0")) {
                 JSONObject data = (JSONObject) payload.get("data");
                 JSONObject member = (JSONObject) data.get("member");
 
-                reqBody.put("or_no", transaction.get("or_no"));
-                reqBody.put("amount", transaction.get("amount"));
-                reqBody.put("customer_id", member.get("id"));
+                reqBody.put(OR_NO, transaction.get(OR_NO));
+                reqBody.put(AMOUNT, transaction.get(AMOUNT));
+                reqBody.put(CUSTOMER_ID, member.get("id"));
 
                 payload = earnPoints(reqBody);
-                errorCode = (String) payload.get("error_code");
-                message = (String) payload.get("message");
+                errorCode = (String) payload.get(ERROR_CODE);
 
                 if (errorCode.equals("0x0")) {
                     sb.append("status=" + "Submitted");
                     sb.append(":");
                     sb.append("message=Points earned.");
                 } else {
-                    JSONObject error = (JSONObject) payload.get("errors");
+                    JSONObject error = (JSONObject) payload.get(ERRORS);
                     String errorMessage = "";
                     if (error != null) {
-                        if (error.get("or_no") != null) {
-                            List<String> l = (ArrayList<String>) error.get("or_no");
+                        if (error.get(OR_NO) != null) {
+                            List<String> l = (ArrayList<String>) error.get(OR_NO);
                             errorMessage = l.get(0);
                         }
-                        if (error.get("amount") != null) {
-                            List<String> l = (ArrayList<String>) error.get("amount");
+                        if (error.get(AMOUNT) != null) {
+                            List<String> l = (ArrayList<String>) error.get(AMOUNT);
                             errorMessage = l.get(0);
                         }
                     }
-                    if (payload.get("message") != null) {
-                        errorMessage = (String) payload.get("message");
+                    if (payload.get(MESSAGE) != null) {
+                        errorMessage = (String) payload.get(MESSAGE);
                     }
                     sb.append("status=" + "Failed");
                     sb.append(":");
@@ -778,16 +803,16 @@ public class MemberService {
             } else {
                 sb.append("status=" + "Failed");
                 sb.append(":");
-                sb.append("message=" + payload.get("message"));
+                sb.append("message=" + payload.get(MESSAGE));
             }
             result.add(sb.toString());
         }
 
         JSONObject payload = new JSONObject();
-        payload.put("error_code", "0x0");
-        payload.put("message", "Submit offline transaction successful.");
+        payload.put(ERROR_CODE, "0x0");
+        payload.put(MESSAGE, "Submit offline transaction successful.");
         JSONObject data = new JSONObject();
-        data.put("transactions", result);
+        data.put(TRANSACTIONS, result);
         payload.put("data", data);
 
         return payload;
@@ -795,13 +820,13 @@ public class MemberService {
 
     private String getAccountPoints(Merchant merchant, String accountNumber, String employeeId) {
         String endpoint = sgAccountSummaryEndpoint;
-        String url = rushHost + endpoint.replace(":employee_id", employeeId);
+        String url = rushHost + endpoint.replace(EMPLOYEE_ID_REF, employeeId);
         String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
 
         try {
             JSONObject jsonObject = apiService.call(url, null, "get", token);
             if (jsonObject != null) {
-                if (jsonObject.get("error_code") == null) {
+                if (jsonObject.get(ERROR_CODE) == null) {
                     tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                     return getAccountPoints(merchant, accountNumber, employeeId);
                 }
@@ -824,13 +849,13 @@ public class MemberService {
         String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
 
         String url = rushHost + customerCardEndpoint;
-        url = url.replace(":employee_id", employeeId);
-        url = url.replace(":customer_id", customerId);
+        url = url.replace(EMPLOYEE_ID_REF, employeeId);
+        url = url.replace(CUSTOMER_ID_REF, customerId);
 
         try {
             JSONObject jsonObject = apiService.call(url, null, "get", token);
             if (jsonObject != null) {
-                if (jsonObject.get("error_code") == null) {
+                if (jsonObject.get(ERROR_CODE) == null) {
                     tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                     return getCustomerCard(merchant, employeeId, customerId);
                 }
@@ -849,45 +874,45 @@ public class MemberService {
 
         JSONObject payload = new JSONObject();
 
-        String merchantKey = (String) requestBody.get("merchant_key");
-        String employeeId = (String) requestBody.get("employee_id");
-        String customerId = (String) requestBody.get("customer_id");
-        String amount = (String) requestBody.get("amount");
+        String merchantKey = (String) requestBody.get(MERCHANT_KEY);
+        String employeeId = (String) requestBody.get(EMPLOYEE_ID);
+        String customerId = (String) requestBody.get(CUSTOMER_ID);
+        String amount = (String) requestBody.get(AMOUNT);
 
         Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus(merchantKey, MerchantStatus.ACTIVE);
         if (merchant != null) {
 
             String url = rushHost + earnStampsEndpoint;
-            url = url.replace(":employee_id", employeeId);
-            url = url.replace(":customer_id", customerId);
+            url = url.replace(EMPLOYEE_ID_REF, employeeId);
+            url = url.replace(CUSTOMER_ID_REF, customerId);
 
             String token = tokenService.getRushtoken(merchantKey, RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
             try {
                 List<NameValuePair> params = new ArrayList<>();
-                params.add(new BasicNameValuePair("amount", amount));
+                params.add(new BasicNameValuePair(AMOUNT, amount));
                 JSONObject jsonObject = apiService.call(url, params, "post", token);
-                if (jsonObject.get("error_code") == null) {
+                if (jsonObject.get(ERROR_CODE) == null) {
                     tokenService.refreshToken(merchantKey, RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                     return earnStamp(requestBody);
                 }
 
-                String errorCode = (String) jsonObject.get("error_code");
-                String message = (String) jsonObject.get("message");
+                String errorCode = (String) jsonObject.get(ERROR_CODE);
+                String message = (String) jsonObject.get(MESSAGE);
                 if (errorCode.equals("0x0")) {
                     Long stampCount = getStampsCount(merchant, employeeId, customerId);
                     JSONObject data = new JSONObject();
                     data.put("stamp_count", stampCount);
                     payload.put("data", data);
                 }
-                payload.put("message", message);
-                payload.put("error_code", errorCode);
+                payload.put(MESSAGE, message);
+                payload.put(ERROR_CODE, errorCode);
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
         } else {
-            payload.put("message", "Merchant not found");
+            payload.put(MESSAGE, MERCHANT_NOT_FOUND);
         }
 
         return payload;
@@ -897,17 +922,17 @@ public class MemberService {
     public Long getStampsCount(Merchant merchant, String employeeId, String customerId) {
         try {
             String url = rushHost + stampsCountEndpoint;
-            url = url.replace(":employee_id", employeeId);
-            url = url.replace(":customer_id", customerId);
+            url = url.replace(EMPLOYEE_ID_REF, employeeId);
+            url = url.replace(CUSTOMER_ID_REF, customerId);
 
             String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
             JSONObject jsonObject = apiService.call(url, null, "get", token);
-            if (jsonObject.get("error_code") == null) {
+            if (jsonObject.get(ERROR_CODE) == null) {
                 tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                 return  getStampsCount(merchant, employeeId, customerId);
             }
 
-            if (jsonObject.get("error_code").equals("0x0")) {
+            if (jsonObject.get(ERROR_CODE).equals("0x0")) {
                 return (Long) jsonObject.get("data");
             }
 
@@ -920,17 +945,17 @@ public class MemberService {
     public JSONObject redeemStamp(JSONObject requestBody) {
         JSONObject payload = new JSONObject();
 
-        String employeeId = (String) requestBody.get("employee_id");
-        String customerId = (String) requestBody.get("customer_id");
-        String rewardId = (String) requestBody.get("reward_id");
+        String employeeId = (String) requestBody.get(EMPLOYEE_ID);
+        String customerId = (String) requestBody.get(CUSTOMER_ID);
+        String rewardId = (String) requestBody.get(REWARD_ID);
         String pin = (String) requestBody.get("pin");
-        String merchantKey = (String) requestBody.get("merchant_key");
+        String merchantKey = (String) requestBody.get(MERCHANT_KEY);
 
         Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus(merchantKey, MerchantStatus.ACTIVE);
         if (merchant != null) {
             String url = rushHost + redeemStampEndpoint;
-            url = url.replace(":employee_id", employeeId);
-            url = url.replace(":customer_id", customerId);
+            url = url.replace(EMPLOYEE_ID_REF, employeeId);
+            url = url.replace(CUSTOMER_ID_REF, customerId);
             url = url.replace(":reward_id", rewardId);
 
             List<NameValuePair> params = new ArrayList<>();
@@ -938,20 +963,20 @@ public class MemberService {
             String token = tokenService.getRushtoken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
             try {
                 JSONObject jsonObject = apiService.call(url, params, "post", token);
-                if (jsonObject.get("error_code") == null) {
+                if (jsonObject.get(ERROR_CODE) == null) {
                     tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                     return redeemStamp(requestBody);
                 }
-                String message = (String) jsonObject.get("message");
-                String errorCode = (String) jsonObject.get("error_code");
+                String message = (String) jsonObject.get(MESSAGE);
+                String errorCode = (String) jsonObject.get(ERROR_CODE);
                 if (errorCode.equals("0x0")) {
                     JSONObject customerCard = getCustomerCard(merchant, employeeId, customerId);
                     JSONObject data = new JSONObject();
                     data.put("customer_card", customerCard);
                     payload.put("data", data);
                 }
-                payload.put("message", message);
-                payload.put("error_code", errorCode);
+                payload.put(MESSAGE, message);
+                payload.put(ERROR_CODE, errorCode);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -966,10 +991,10 @@ public class MemberService {
 
         JSONObject payload = new JSONObject();
 
-        String merchantKey = (String) requestBody.get("merchant_key");
-        String employeeId = (String) requestBody.get("employee_id");
-        String customerId = (String) requestBody.get("customer_id");
-        String rewardId = (String) requestBody.get("reward_id");
+        String merchantKey = (String) requestBody.get(MERCHANT_KEY);
+        String employeeId = (String) requestBody.get(EMPLOYEE_ID);
+        String customerId = (String) requestBody.get(CUSTOMER_ID);
+        String rewardId = (String) requestBody.get(REWARD_ID);
         String pin = (String) requestBody.get("pin");
 
         Merchant merchant = merchantRepository.findOneByUniqueKeyAndStatus(merchantKey, MerchantStatus.ACTIVE);
@@ -980,22 +1005,22 @@ public class MemberService {
             params.add(new BasicNameValuePair("pin", pin));
 
             String url = rushHost + issueStampRewardEndpoint;
-            url = url.replace(":employee_id", employeeId);
-            url = url.replace(":customer_id", customerId);
+            url = url.replace(EMPLOYEE_ID_REF, employeeId);
+            url = url.replace(CUSTOMER_ID_REF, customerId);
             url = url.replace(":rewards_id", rewardId);
 
             try {
                 JSONObject jsonObject = apiService.call(url, params, "post", token);
-                if (jsonObject.get("error_code") == null) {
+                if (jsonObject.get(ERROR_CODE) == null) {
                     tokenService.refreshToken(merchantKey, RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                     return issueStampReward(requestBody);
                 }
 
-                String errorCode = (String) jsonObject.get("error_code");
-                String message = (String) jsonObject.get("message");
+                String errorCode = (String) jsonObject.get(ERROR_CODE);
+                String message = (String) jsonObject.get(MESSAGE);
 
-                payload.put("error_code", errorCode);
-                payload.put("message", message);
+                payload.put(ERROR_CODE, errorCode);
+                payload.put(MESSAGE, message);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -1003,7 +1028,7 @@ public class MemberService {
 
 
         } else {
-            payload.put("message", "Merchant not found");
+            payload.put(MESSAGE, MERCHANT_NOT_FOUND);
         }
 
         return payload;

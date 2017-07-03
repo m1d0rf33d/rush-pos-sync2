@@ -44,11 +44,13 @@ public class EmployeeService {
     private UserRepository userRepository;
     @Autowired
     private MerchantScreenRepository merchantScreenRepository;
-
     @Autowired
     private APIService apiService;
     @Autowired
     private TokenService tokenService;
+    @Autowired
+
+    private static final String ERROR_CODE = "error_code";
 
     public ApiResponse<EmployeeDTO> login(String employeeId,
                                           String branchId,
@@ -72,11 +74,11 @@ public class EmployeeService {
              String url = rushHost + endpoint.replace(":merchant_type", merchant.getMerchantType().getValue().toLowerCase());
              JSONObject jsonObject = apiService.call((url), params, "post", token);
              if (jsonObject != null) {
-                 String errorCode = (String) jsonObject.get("error_code");
+                 String errorCode = (String) jsonObject.get(ERROR_CODE);
                  if (errorCode == null) {
                     tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                  }
-                 if (jsonObject.get("error_code").equals("0x0")) {
+                 if (jsonObject.get(ERROR_CODE).equals("0x0")) {
                      JSONObject data = (JSONObject) jsonObject.get("data");
                      EmployeeDTO employee = new EmployeeDTO();
                      employee.setId((String) data.get("id"));
@@ -84,7 +86,7 @@ public class EmployeeService {
                      apiResponse.setData(employee);
                  }
                  apiResponse.setMessage((String) jsonObject.get("message"));
-                 apiResponse.setErrorCode((String) jsonObject.get("error_code"));
+                 apiResponse.setErrorCode((String) jsonObject.get(ERROR_CODE));
              }
          } catch (IOException e) {
              e.printStackTrace();

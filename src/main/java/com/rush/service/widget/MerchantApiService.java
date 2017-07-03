@@ -1,12 +1,10 @@
 package com.rush.service.widget;
 
 import com.rush.model.ApiResponse;
-import com.rush.model.dto.BranchDTO;
 import com.rush.model.Merchant;
 import com.rush.model.dto.MerchantDTO;
 import com.rush.model.enums.MerchantClassification;
 import com.rush.model.enums.RushTokenType;
-import com.rush.model.enums.WidgetCode;
 import com.rush.service.APIService;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +41,8 @@ public class MerchantApiService {
     @Autowired
     private GlobeSgService globeSgService;
 
+    private static final String ERROR_CODE = "error_code";
+
     public List<JSONObject> getBranches(Merchant merchant) {
 
         if (merchant.getMerchantClassification().equals(MerchantClassification.GLOBE_SG)) {
@@ -54,11 +54,11 @@ public class MerchantApiService {
             try {
                 JSONObject jsonObject = apiService.call(url, null, "get", token);
                 if (jsonObject != null) {
-                    if (jsonObject.get("error_code") == null) {
+                    if (jsonObject.get(ERROR_CODE) == null) {
                         tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                         return getBranches(merchant);
                     }
-                    if (jsonObject.get("error_code").equals("0x0")) {
+                    if (jsonObject.get(ERROR_CODE).equals("0x0")) {
                         return (ArrayList) jsonObject.get("data");
                     }
                 }
@@ -66,7 +66,7 @@ public class MerchantApiService {
                 e.printStackTrace();
             }
         }
-        return null;
+        return new ArrayList<>();
     }
 
     public ApiResponse<MerchantDTO> getMerchantDesign(Merchant merchant) {
@@ -89,7 +89,7 @@ public class MerchantApiService {
                 merchantDTO.setStampsUrl((String) merchantJSON.get("stamp_url"));
                 merchantDTO.setGrayStampsUrl((String) merchantJSON.get("stamp_gray_url"));
                 apiResponse.setData(merchantDTO);
-                apiResponse.setErrorCode((String) jsonObject.get("error_code"));
+                apiResponse.setErrorCode((String) jsonObject.get(ERROR_CODE));
             }
         } catch (IOException e) {
             e.printStackTrace();

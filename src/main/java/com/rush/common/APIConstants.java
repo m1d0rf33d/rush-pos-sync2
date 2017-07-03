@@ -5,6 +5,10 @@ package com.rush.common;
  */
 public class APIConstants {
 
+    private APIConstants() {
+
+    }
+
     public static final String MERCHANT_RESOURCE_OWNER = "MERCHANT_RESOURCE_OWNER";
     public static final String CUSTOMER_RESOURCE_OWNER = "CUSTOMER_RESOURCE_OWNER";
 

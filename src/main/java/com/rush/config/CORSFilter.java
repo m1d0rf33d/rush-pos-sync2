@@ -1,5 +1,6 @@
 package com.rush.config;
 
+import org.apache.log4j.Logger;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -17,13 +18,13 @@ import java.io.IOException;
 @Order(-1000)
 public class CORSFilter extends OncePerRequestFilter {
 
-    static final String ORIGIN = "Origin";
+    private static final String ORIGIN = "Origin";
+    private Logger LOG = Logger.getLogger(CORSFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        System.out.println(request.getHeader(ORIGIN));
-        System.out.println(request.getMethod());
+
         response.setHeader("Access-Control-Allow-Origin", "*");
         if (request.getMethod().equals("OPTIONS")) {
             //* or origin as u prefer
@@ -36,6 +37,7 @@ public class CORSFilter extends OncePerRequestFilter {
                 response.getWriter().flush();
             } catch (IOException e) {
                 e.printStackTrace();
+                LOG.error(e.getMessage());
             }
         }else{
             filterChain.doFilter(request, response);

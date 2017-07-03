@@ -54,6 +54,9 @@ public class WidgetService {
     @Autowired
     private APIService apiService;
 
+    private static final String WITH_VK = "with_vk";
+    private static final String ERROR_CODE = "error_code";
+
     public JSONObject initializeWidget(String merchantKey) {
 
         String widgetToken = tokenService.getWidgetToken(merchantKey);
@@ -66,7 +69,7 @@ public class WidgetService {
         if (merchant != null) {
             merchantJSON.put("name", merchant.getName());
             merchantJSON.put("token", widgetToken);
-            merchantJSON.put("with_vk", merchant.getWithVk());
+            merchantJSON.put(WITH_VK, merchant.getWithVk());
             merchantJSON.put("merchant_key", merchant.getUniqueKey());
             merchantJSON.put("merchant_type", merchant.getMerchantType());
             merchantJSON.put("merchant_class", merchant.getMerchantClassification().toString());
@@ -77,7 +80,7 @@ public class WidgetService {
         for (JSONObject branch : branches) {
             Branch b = branchRepository.findOneByUuid((String) branch.get("id"));
             if (b != null) {
-                branch.put("with_vk", b.isWithVk());
+                branch.put(WITH_VK, b.isWithVk());
             }
         }
         data.put("branches", branches);
@@ -92,11 +95,11 @@ public class WidgetService {
         try {
             JSONObject jsonObject = apiService.call(url, null, "get", token);
             if (jsonObject != null) {
-                if (jsonObject.get("error_code") == null) {
+                if (jsonObject.get(ERROR_CODE) == null) {
                     tokenService.refreshToken(merchant.getUniqueKey(), RushTokenType.MERCHANT_APP, merchant.getMerchantClassification());
                     return getTitles(merchant, employeeId);
                 }
-                if (jsonObject.get("error_code").equals("0x0")) {
+                if (jsonObject.get(ERROR_CODE).equals("0x0")) {
                     return (ArrayList) jsonObject.get("data");
                 }
 
@@ -104,7 +107,7 @@ public class WidgetService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return new ArrayList<>();
     }
 
     public JSONObject loginEmployee(JSONObject requestBody) {
@@ -121,7 +124,7 @@ public class WidgetService {
             JSONObject data = new JSONObject();
 
             payload.put("message", loginResp.getMessage());
-            payload.put("error_code", loginResp.getErrorCode());
+            payload.put(ERROR_CODE, loginResp.getErrorCode());
             if (loginResp.getErrorCode().equals("0x0")) {
                 EmployeeDTO employeeDTO = loginResp.getData();
                 JSONObject employee = new JSONObject();
@@ -136,7 +139,7 @@ public class WidgetService {
                 merchantJSON.put("background_url", merchantDTO.getBackgroundUrl());
                 merchantJSON.put("stamps_url", merchantDTO.getStampsUrl());
                 merchantJSON.put("gray_stamps_url", merchantDTO.getGrayStampsUrl());
-                merchantJSON.put("with_vk", merchant.getWithVk());
+                merchantJSON.put(WITH_VK, merchant.getWithVk());
                 data.put("merchant", merchantJSON);
                 //Screen access
                 ApiResponse<List<String>> accessResp = employeeService.getEmployeeAccess(employeeDTO.getId());

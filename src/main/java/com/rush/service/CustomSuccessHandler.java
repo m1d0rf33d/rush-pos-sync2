@@ -18,7 +18,6 @@ import java.io.IOException;
 public class CustomSuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        User authUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         response.sendRedirect("/rush-pos-sync/#/");
     }

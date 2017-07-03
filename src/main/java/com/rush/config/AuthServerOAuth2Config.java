@@ -38,6 +38,9 @@ public class AuthServerOAuth2Config extends AuthorizationServerConfigurerAdapter
     @Value("classpath:schema.sql")
     private Resource schemaScript;
 
+    private static final String CLIENT_ID = "rush_client";
+    private static final String CLIENT_SECRET = "rush_client_secret";
+
     @Override
     public void configure(
             AuthorizationServerSecurityConfigurer oauthServer)
@@ -51,13 +54,13 @@ public class AuthServerOAuth2Config extends AuthorizationServerConfigurerAdapter
     public void configure(ClientDetailsServiceConfigurer clients)
             throws Exception {
         clients.jdbc(dataSource)
-                .withClient("taf")
-                .secret("taf_secret")
+                .withClient(CLIENT_ID)
+                .secret(CLIENT_SECRET)
                 .accessTokenValiditySeconds(0)
                 .authorizedGrantTypes(
                         "password","authorization_code", "refresh_token")
-                .scopes("trust")
-                .and()
+                .scopes("trust");
+                /*.and()
                 .withClient("auntie_annes")
                 .secret("auntie_annes_secret")
                 .accessTokenValiditySeconds(0)
@@ -77,7 +80,7 @@ public class AuthServerOAuth2Config extends AuthorizationServerConfigurerAdapter
                 .accessTokenValiditySeconds(0)
                 .authorizedGrantTypes(
                         "password","authorization_code", "refresh_token")
-                .scopes("trust");
+                .scopes("trust");*/
 
     }
 

@@ -1,6 +1,7 @@
 package com.rush.controller;
 
 import com.rush.model.ApiResponse;
+import com.rush.service.ErrorLogger;
 import com.rush.service.FileUploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,13 +26,14 @@ public class FileUploadController {
 
     @RequestMapping(value = "/download/{merchantKey}", method = RequestMethod.GET)
     public void getMerchantUpdates(@PathVariable("merchantKey") String merchantKey,
-                                   HttpServletResponse response) {
+                                   HttpServletResponse response) throws IOException, NullPointerException {
 
         File file = new File(fileUploadService.getUpdatePath(merchantKey));
 
         if (file.exists()) {
+            InputStream inputStream = null;
             try {
-                InputStream inputStream = new FileInputStream(file);
+                inputStream = new FileInputStream(file);
                 OutputStream outputStream = response.getOutputStream();
                 int length;
                 byte[] buffer = new byte[5242880];
@@ -39,13 +41,17 @@ public class FileUploadController {
                     outputStream.write(buffer, 0, length);
                 }
                 outputStream.flush();
-                inputStream.close();
+
 
                 response.addHeader("Content-type", "octet-stream");
             } catch (FileNotFoundException e) {
+                ErrorLogger.LOG.error(e.getMessage());
                 e.printStackTrace();
             } catch (IOException e) {
+                ErrorLogger.LOG.error(e.getMessage());
                 e.printStackTrace();
+            } finally {
+                inputStream.close();
             }
         }
     }

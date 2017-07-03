@@ -33,6 +33,7 @@ public class FileReaderService {
             });
         } catch (IOException e) {
             e.printStackTrace();
+            ErrorLogger.LOG.error(e.getMessage());
         }
         return logs;
     }
