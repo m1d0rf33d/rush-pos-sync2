@@ -89,7 +89,7 @@ public class WidgetController {
         return memberService.issueStampReward(requestBody);
     }
 
-    @RequestMapping(value = "/jenkins/build", method = RequestMethod.GET)
+    @RequestMapping(value = "/jenkins/build", method = RequestMethod.POST)
     public ResponseEntity<String> triggerJenkinsBuild() {
         boolean success = jenkinsService.triggerJenkins();
         return new ResponseEntity<String>(success ? "success" : "failed", HttpStatus.OK);
