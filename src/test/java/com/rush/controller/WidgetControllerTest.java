@@ -6,6 +6,8 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.simple.JSONObject;
@@ -39,7 +41,9 @@ public class WidgetControllerTest {
 
         StringEntity stringEntity = new StringEntity(json.toJSONString());
 
-        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        DefaultHttpClient httpClient = new DefaultHttpClient();
+        DefaultHttpRequestRetryHandler retryHandler = new DefaultHttpRequestRetryHandler(5, true);
+        httpClient.setHttpRequestRetryHandler(retryHandler);
         HttpPost httpPost = new HttpPost("http://52.74.190.173:8080/rush-pos-sync/api/widget/login/employee");
         httpPost.addHeader("Authorization", "Bearer 2c41e8de-0d6d-45a5-9544-f2a5a6da164d");
         httpPost.addHeader("Content-type", "application/json");
