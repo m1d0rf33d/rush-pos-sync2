@@ -15993,21 +15993,6 @@ var RoleComponent = function (_Component) {
                     'name': 'PAY_WITH_POINTS',
                     'checked': pay_with_points
                 }, {
-                    'name': 'GIVE_POINTS',
-                    'checked': give_points
-                }, {
-                    'name': 'GUEST_PURCHASE',
-                    'checked': guest_purchase
-                }, {
-                    'name': 'GIVE_POINTS_OCR',
-                    'checked': give_points_ocr
-                }, {
-                    'name': 'GIVE_STAMPS',
-                    'checked': give_stamps
-                }, {
-                    'name': 'PAY_WITH_POINTS',
-                    'checked': pay_with_points
-                }, {
                     'name': 'REDEEM_REWARDS',
                     'checked': redeem_rewards
                 }, {

@@ -17,10 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Created by aomine on 10/18/16.
@@ -62,6 +59,9 @@ public class MerchantService {
     @Autowired
     private TokenService tokenService;
 
+    private static final String CLIENT_ID = "rush_client";
+    private static final String CLIENT_SECRET = "rush_client_secret";
+
 
     public ApiResponse<List<MerchantDTO>> getMerchants() {
         List<MerchantDTO> data = new ArrayList<>();
@@ -90,6 +90,8 @@ public class MerchantService {
         merchant.setMerchantApiKey(merchantDTO.getMerchantApiKey());
         merchant.setMerchantApiSecret(merchantDTO.getMerchantApiSecret());
         merchant.setCustomerApiKey(merchantDTO.getCustomerApiKey());
+        merchant.setClientId(CLIENT_ID);
+        merchant.setClientSecret(CLIENT_SECRET);
         merchant.setCustomerApiSecret(merchantDTO.getCustomerApiSecret());
         if (merchantDTO.getStatus().equals("ACTIVE")) {
             merchant.setStatus(MerchantStatus.ACTIVE);
@@ -167,6 +169,7 @@ public class MerchantService {
                                 });
                     }
                 }
+
                 apiResponse.setData(accounts);
                 apiResponse.setResponseCode("200");
             }
