@@ -63,7 +63,7 @@ public class WidgetControllerTest {
         JSONParser parser = new JSONParser();
         JSONObject jsonObject = (JSONObject) parser.parse(result.toString());
         // Then
-        assertEquals(jsonObject.get("error_code"), "0x3");
+        assertEquals(jsonObject.get("error_code"), "0x0");
 
     }
 
